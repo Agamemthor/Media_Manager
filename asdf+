@@ -1,2 +1,0 @@
-user@localhost:~/myapp> docker-compose up --build
-validating /home/user/myapp/docker-compose.yml: services.app.ports must be a array

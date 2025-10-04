@@ -1,1 +1,19 @@
-pg-admin
+
+
+## Add media dimesions
+                        # Initialize dimensions
+                        width, height = None, None
+                        try:
+                            # Try to get dimensions based on file type
+                            if ext in image_extensions:
+                                with Image.open(full_path) as img:
+                                    width, height = img.size
+                            elif ext in video_extensions:
+                                cap = cv2.VideoCapture(full_path)
+                                if cap.isOpened():
+                                    width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
+                                    height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
+                                    cap.release()
+                        except Exception as e:
+                            # If we can't get dimensions, just continue without them
+                            print(f"Could not get dimensions for {full_path}: {e}")

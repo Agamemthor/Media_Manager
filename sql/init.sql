@@ -6,20 +6,22 @@ CREATE TABLE IF NOT EXISTS Media_Types (
     UNIQUE (Media_Type_Description, Media_Type_Extension)  -- Add this line
 );
 
-CREATE TABLE IF NOT EXISTS Media_Folders (
-    Folder_ID SERIAL PRIMARY KEY,
-    Parent_Folder_ID INTEGER REFERENCES Media_Folders(Folder_ID),
-    Folder_Path VARCHAR(500) NOT NULL UNIQUE
+-- Folders table with explicit ID and parent relationship
+CREATE TABLE media_folders (
+    folder_id INTEGER PRIMARY KEY,
+    folder_path TEXT UNIQUE NOT NULL,
+    parent_folder_id INTEGER REFERENCES media_folders(folder_id) ON DELETE CASCADE
 );
 
-CREATE TABLE IF NOT EXISTS Media_Files (
-    File_ID SERIAL PRIMARY KEY,
-    Folder_ID INTEGER REFERENCES Media_Folders(Folder_ID),
-    File_Name VARCHAR(255) NOT NULL,
-    File_Extension VARCHAR(10) NOT NULL,
-    File_Size_KB INTEGER,
-    Media_Height INTEGER,
-    Media_Width INTEGER
+-- Files table with foreign key to folders
+CREATE TABLE media_files (
+    media_file_id SERIAL PRIMARY KEY,
+    folder_id INTEGER REFERENCES media_folders(folder_id) ON DELETE CASCADE,
+    file_name TEXT NOT NULL,
+    file_extension TEXT NOT NULL,
+    file_size_kb INTEGER,
+    folder_path TEXT,
+    UNIQUE (folder_id, file_name)
 );
 
 CREATE TABLE IF NOT EXISTS Parameters (
