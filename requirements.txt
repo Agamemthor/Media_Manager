@@ -1,0 +1,6 @@
+psycopg2-binary==2.9.9    # PostgreSQL adapter for Python
+pandas==2.1.4            # For data manipulation (e.g., DataFrames)
+tk==0.1.0                # Not needed (Tkinter is included in Python standard library)
+#Pillow==10.1.0           # For image handling (if needed)
+python-dotenv==1.0.0     # For environment variables (optional)
+docker==6.1.3           #Spin up postgresql
