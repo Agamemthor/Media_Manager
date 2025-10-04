@@ -1,13 +1,3 @@
-app/classes/__pycache__/__init__.cpython-312.pyc
-app/classes/__pycache__/grid_manager.cpython-312.pyc
-app/classes/__pycache__/image_manager.cpython-312.pyc
-app/classes/__pycache__/media_file.cpython-312.pyc
-app/classes/__pycache__/media_folder.cpython-312.pyc
-app/classes/__pycache__/media_manager.cpython-312.pyc
-app/classes/__pycache__/MediaFile.cpython-312.pyc
-app/classes/__pycache__/MediaFolder.cpython-312.pyc
-app/classes/__pycache__/MediaManager.cpython-312.pyc
-app/classes/__pycache__/slideshow_manager.cpython-312.pyc
-app/classes/__pycache__/treeview_manager.cpython-312.pyc
-app/classes/__pycache__/TreeviewManager.cpython-312.pyc
+app/classes/__pycache__/*
+
 stop
