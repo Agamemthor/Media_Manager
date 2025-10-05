@@ -7,29 +7,31 @@ import os
 import random
 from .media_file import MediaFile
 
-class SlideshowManager:
+class SlideshowCell:
     """
-    A class to manage a single slideshow in a grid cell.
-    Each instance manages its own image display.
+    A class to manage a single cell in the slideshow grid.
+    Each cell displays images but doesn't manage timing.
     """
-
     def __init__(self, parent_frame: tk.Frame):
         """
-        Initialize the SlideshowManager with a parent frame.
+        Initialize the SlideshowCell with a parent frame.
 
         Args:
-            parent_frame: The frame where this slideshow will be displayed
+            parent_frame: The frame where this cell will display images
         """
         self.parent_frame = parent_frame
-        self.image_files: List[MediaFile] = []
-        self.current_index = 0
-        self.delay = 8000  # 8 seconds between images
-        self.is_running = False
-        self.after_id = None
         self.current_image_label = None
-
-        # Create a label for displaying images
         self._create_image_label()
+
+        # Wait for the frame to be properly sized
+        self.parent_frame.bind("<Configure>", self._on_frame_configure)
+
+    def _on_frame_configure(self, event=None):
+        """Handle frame resize events."""
+        # This ensures the label fills the frame when it's resized
+        if self.current_image_label:
+            self.current_image_label.pack_forget()
+            self.current_image_label.pack(fill="both", expand=True)
 
     def _create_image_label(self):
         """Create a label for displaying images."""
@@ -39,44 +41,25 @@ class SlideshowManager:
         self.current_image_label = tk.Label(self.parent_frame, bg='black')
         self.current_image_label.pack(fill="both", expand=True)
 
-    def start_slideshow(self, image_files: List[MediaFile]):
+    def display_image(self, image_path: str):
         """
-        Start a slideshow with the given list of image files.
+        Display an image in this cell.
 
         Args:
-            image_files: List of MediaFile objects to display in the slideshow
+            image_path: Path to the image file to display
         """
-        # Filter to only include image files
-        self.image_files = [
-            f for f in image_files
-            if f.media_type.lower() in ["image", "gif", "jpg", "jpeg", "png", "bmp", "tiff"]
-        ]
-
-        if not self.image_files:
-            return
-
-        # Shuffle the images for variety
-        random.shuffle(self.image_files)
-        self.current_index = 0
-        self.is_running = True
-        self._show_next_image()
-
-    def _show_next_image(self):
-        """Show the next image in the slideshow."""
-        if not self.is_running or not self.image_files:
-            return
-
-        # Get the next image
-        media_file = self.image_files[self.current_index]
-        full_path = os.path.join(media_file.folder_path, media_file.file_name)
-
         try:
             # Open the image
-            pil_image = Image.open(full_path)
+            pil_image = Image.open(image_path)
 
-            # Get frame dimensions
+            # Get frame dimensions - ensure we have valid dimensions
             frame_width = self.parent_frame.winfo_width()
             frame_height = self.parent_frame.winfo_height()
+
+            # If dimensions are too small (like 1x1), use a default size
+            if frame_width <= 1 or frame_height <= 1:
+                frame_width = 400  # Default width
+                frame_height = 300  # Default height
 
             # Minimum dimensions to prevent tiny images
             min_width, min_height = 100, 100
@@ -91,39 +74,23 @@ class SlideshowManager:
             # Resize the image
             resized_image = pil_image.resize(new_size, Image.LANCZOS)
 
-            # Convert to PhotoImage - create a new one for this frame
+            # Convert to PhotoImage
             tk_image = ImageTk.PhotoImage(resized_image)
 
             # Update the label
             if self.current_image_label:
                 self.current_image_label.configure(image=tk_image)
                 self.current_image_label.image = tk_image  # Keep a reference
-            else:
-                self._create_image_label()
-                self.current_image_label.configure(image=tk_image)
-                self.current_image_label.image = tk_image  # Keep a reference
-
-            # Update the index
-            self.current_index = (self.current_index + 1) % len(self.image_files)
-
-            # Schedule the next image
-            if self.is_running:
-                self.after_id = self.parent_frame.after(self.delay, self._show_next_image)
 
         except Exception as e:
             print(f"Error loading image: {e}")
-            # Try the next image
-            self.current_index = (self.current_index + 1) % len(self.image_files)
-            if self.is_running:
-                self.after_id = self.parent_frame.after(100, self._show_next_image)  # Try again soon
+            # Clear the label if there's an error
+            if self.current_image_label:
+                self.current_image_label.configure(image='')
+                self.current_image_label.image = None
 
-    def stop_slideshow(self):
-        """Stop the slideshow."""
-        self.is_running = False
-        if self.after_id:
-            self.parent_frame.after_cancel(self.after_id)
-            self.after_id = None
-
+    def clear(self):
+        """Clear the current image display."""
         if self.current_image_label:
             self.current_image_label.configure(image='')
             self.current_image_label.image = None
@@ -131,6 +98,7 @@ class SlideshowManager:
 class MultiSlideshowWindow:
     """
     A class to manage a window with multiple slideshows in a grid layout.
+    This class is responsible for scheduling all image changes.
     """
 
     def __init__(self, image_files: List[MediaFile]):
@@ -140,34 +108,55 @@ class MultiSlideshowWindow:
         Args:
             image_files: List of MediaFile objects to display across all slideshows
         """
+        # Create the slideshow window
         self.slideshow_window = tk.Toplevel()
         self.slideshow_window.title("Multi-Slideshow")
-        self.slideshow_window.attributes('-fullscreen', True)  # Start in fullscreen
 
-        # Store image files
-        self.image_files = image_files
+        # First make the window visible and set to fullscreen
+        self.slideshow_window.update_idletasks()  # Process all pending events
+        self.slideshow_window.attributes('-fullscreen', True)
 
-        # Create grid layout
+        # Store and filter image files
+        self.all_image_files = [
+            f for f in image_files
+            if f.media_type.lower() in ["image", "gif", "jpg", "jpeg", "png", "bmp", "tiff"]
+        ]
+
+        if not self.all_image_files:
+            messagebox.showwarning("Warning", "No image files to display.")
+            self.slideshow_window.destroy()
+            return
+
+        # Grid configuration
         self.rows = 2
         self.cols = 4
-        self.slideshow_managers = []  # List to hold all slideshow managers
+        self.slideshow_cells = []  # List to hold all slideshow cells
 
-        # Create the grid
+        # Create the grid and cells
         self._create_grid()
-
-        # Add a close button
-        close_button = tk.Button(
-            self.slideshow_window,
-            text="Close (Esc)",
-            command=self.close
-        )
-        #close_button.pack(pady=10)
 
         # Bind escape key to close
         self.slideshow_window.bind("<Escape>", lambda e: self.close())
 
-        # Start slideshows when window is visible
-        self.slideshow_window.bind("<Visibility>", self._start_slideshows)
+        # Scheduling variables
+        self.delay = 8000  # 8 seconds between images
+        self.cell_indices = []  # Track index for each cell
+        self.is_running = False
+        self.after_id = None
+        self.first_update = True  # Flag for first update
+
+        # Initialize random indices for each cell
+        for _ in range(self.rows * self.cols):
+            self.cell_indices.append(random.randint(0, len(self.all_image_files) - 1))
+
+        # Start slideshows when window is visible and properly sized
+        self.slideshow_window.bind("<Visibility>", self._on_window_visible)
+
+    def _on_window_visible(self, event=None):
+        """Handle window visibility event."""
+        # Add a small delay to ensure the window is properly sized
+        # This helps prevent the first images from being too small
+        self.slideshow_window.after(500, self._start_slideshows)
 
     def _create_grid(self):
         """Create the grid layout for slideshows."""
@@ -177,33 +166,54 @@ class MultiSlideshowWindow:
         for j in range(self.cols):
             self.slideshow_window.grid_columnconfigure(j, weight=1)
 
-        # Create slideshow managers in a grid
+        # Create slideshow cells in a grid
         for row in range(self.rows):
             for col in range(self.cols):
-                # Create a frame for each slideshow
+                # Create a frame for each cell
                 cell_frame = tk.Frame(self.slideshow_window, bg='black')
                 cell_frame.grid(row=row, column=col, sticky="nsew", padx=2, pady=2)
 
-                # Create a slideshow manager for this cell
-                slideshow_manager = SlideshowManager(cell_frame)
-                self.slideshow_managers.append(slideshow_manager)
+                # Create a slideshow cell for this frame
+                cell = SlideshowCell(cell_frame)
+                self.slideshow_cells.append(cell)
 
-    def _start_slideshows(self, event=None):
-        """Start all slideshows when the window becomes visible."""
-        if not self.image_files:
-            messagebox.showwarning("Warning", "No image files to display.")
+    def _start_slideshows(self):
+        """Start all slideshows after the window is visible and sized."""
+        if not self.is_running:
+            self.is_running = True
+            if self.first_update:
+                # Add a small delay for the first update to ensure proper sizing
+                self.first_update = False
+                self.slideshow_window.after(500, self._update_all_cells)
+            else:
+                self._update_all_cells()
+
+    def _update_all_cells(self):
+        """Update all cells with new random images."""
+        if not self.is_running:
             return
 
-        # Start each slideshow with the same image files
-        # Each slideshow will shuffle the files differently
-        for manager in self.slideshow_managers:
-            manager.start_slideshow(self.image_files.copy())
+        # Update each cell with a new random image
+        for i, cell in enumerate(self.slideshow_cells):
+            if self.all_image_files:
+                # Get a random image for this cell
+                self.cell_indices[i] = random.randint(0, len(self.all_image_files) - 1)
+                media_file = self.all_image_files[self.cell_indices[i]]
+                full_path = os.path.join(media_file.folder_path, media_file.file_name)
+                cell.display_image(full_path)
+
+        # Schedule the next update
+        self.after_id = self.slideshow_window.after(self.delay, self._update_all_cells)
 
     def close(self):
         """Close the slideshow window."""
-        # Stop all slideshows
-        for manager in self.slideshow_managers:
-            manager.stop_slideshow()
+        self.is_running = False
+        if self.after_id:
+            self.slideshow_window.after_cancel(self.after_id)
+
+        # Clear all cells
+        for cell in self.slideshow_cells:
+            cell.clear()
 
         # Destroy the window
         self.slideshow_window.destroy()
