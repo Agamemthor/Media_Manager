@@ -6,5 +6,6 @@ from .treeview_manager import TreeviewManager
 from .grid_manager import GridManager
 from .image_manager import ImageManager
 from .slideshow_manager import MultiSlideshowWindow
+from .db_manager import DBManager
 
-__all__ = ['MediaFile', 'MediaFolder', 'MediaManager', 'TreeviewManager', 'GridManager', 'ImageManager', 'MultiSlideshowWindow']
+__all__ = ['MediaFile', 'MediaFolder', 'MediaManager', 'TreeviewManager', 'GridManager', 'ImageManager', 'MultiSlideshowWindow', 'DBManager']

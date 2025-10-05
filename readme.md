@@ -17,6 +17,7 @@ The container hosting Postgres automatically creates tables on its init. Some in
 Possibly temporary: pgadmin to check the database. http://localhost:5050/browser/, u: your@email.com, p: yourpassword
 
 #### Multimedia manager 
+- Todo: open database from .env file
 - User interface to browse files and folders similar to a file explorer.
 - Connection to the Postgres database running in the container. Certain parameters will be saved and loaded from there, as well as user created metadata on files and folders. 
 - The app recursively loops over all files in the rootfolder directory, and for files of specific mediatypes, saves file and folder metadata in the database.

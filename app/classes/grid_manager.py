@@ -67,7 +67,7 @@ class GridManager:
             size: The size of the new window (width, height)
 
         Returns:
-            The newly created Toplevel window
+            The newly created Toplevel window#json string 
         """
         window = tk.Toplevel(self.root)
         window.title(title)
