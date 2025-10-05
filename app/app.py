@@ -441,7 +441,7 @@ class MediaManagerApp:
             raise
 
 
-if __name__ == "__main__":
+if __name__ == "__main__": 
     try:
         conn = connect_to_db()
         root = tk.Tk()
