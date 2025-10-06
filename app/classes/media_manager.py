@@ -6,16 +6,50 @@ from .media_folder import MediaFolder
 from .media_file import MediaFile
 from .grid_manager import GridManager
 from .treeview_manager import TreeviewManager
+from .window_manager import WindowManager
 from tkinter import ttk
 import tkinter as tk
 
 @dataclass
 class MediaManager:
-    def __init__(self, db_manager, window_config):
-        root=tk.Tk()
-        self.db_manager = db_manager
-        self.window_config = window_config
+    """
+    Represents a window, and coordinates all processes on that window.
 
+    window_config = {
+        'height': 600,
+        'width': 800,
+        'borderless': False, #the overrideredirect parameter is a fickle beast. Ignores the always_on_top parameter and app is always on top of everything
+        'show_custom_titlebar': False,
+        'title': "Media Manager",
+        'show_menubar': False,
+        'fullscreen': True, # does not work when borderless is True
+        'always_on_top': False, # if borderless = true, app is always on top
+        'exit_on_escape': True,  # does not work if borderless is True
+        'fullscreen_on_f11': True,  # does not work if borderless is True
+    }
+    
+    grid_config = {
+        'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
+        'grid_columns': 2,
+        'row_weights': [1, 0],  # First row expands, second row fixed height
+        'column_weights': [1, 3],  # Equal column weights
+        'cell_configs': { #row, column, rowspan, columnspan, name
+            (0,0,1,1, 'media_tree'), 
+            (0,1,1,1, 'content_frame'), 
+            (1,0,2,1, 'statusbar')
+        }
+    }
+    """
+    def __init__(self, db_manager, window_config):
+        self.window_manager = WindowManager(window_config)
+        root=self.window_manager.get_root()
+        self.root=root
+
+        self.db_manager = db_manager
+        
+        self.window_config = window_config
+        self.process_configuration()
+        
         self.grid_manager = GridManager(root, window_config)
         extension_to_type, valid_extensions = db_manager.load_media_type_mappings()
 
@@ -54,14 +88,6 @@ class MediaManager:
         scrollbar.pack(side="right", fill="y")
         self.tree.configure(yscrollcommand=scrollbar.set)
 
-        # Create a menubar
-        self.menubar = tk.Menu(root)
-        self.root.config(menu=self.menubar)
-
-        # Add a "File" menu
-        self.file_menu = tk.Menu(self.menubar, tearoff=0)
-        self.file_menu.add_command(label="Select New Root Folder", command=self.change_rootfolder)
-        self.menubar.add_cascade(label="File", menu=self.file_menu)
 
         # Create a status bar frame that spans both columns in the second row
         self.status_frame = self.grid_manager.get_frame(row=1, column=0, columnspan=2)
@@ -88,6 +114,20 @@ class MediaManager:
 
         # Assign files to their folders
         self._assign_files_to_folders()
+
+    def process_configuration(self):
+        
+        
+    def set_window(self, root):
+
+        # Create a menubar
+        self.menubar = tk.Menu(root)
+        self.root.config(menu=self.menubar)
+
+        # Add a "File" menu
+        self.file_menu = tk.Menu(self.menubar, tearoff=0)
+        self.file_menu.add_command(label="Select New Root Folder", command=self.change_rootfolder)
+        self.menubar.add_cascade(label="File", menu=self.file_menu)
 
     def scan_media(self, folder_path):
         """

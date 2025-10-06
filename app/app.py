@@ -26,19 +26,19 @@ class MediaManagerApp:
         window_config = {
             'height': 600,
             'width': 800,  
-            'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
-            'grid_columns': 2,
-            'row_weights': [1, 0],  # First row expands, second row fixed height
-            'column_weights': [1, 3],  # Equal column weights
             'show_taskbar': True,
             'title': "Media Manager",
             'show_menubar': True,
             'show_statusbar': True,
             'fullscreen': False,
+            'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
+            'grid_columns': 2,
+            'row_weights': [1, 0],  # First row expands, second row fixed height
+            'column_weights': [1, 3],  # Equal column weights
             'cell_configs': { #row, column, rowspan, columnspan, name
-                [0,0,1,1, 'treeview'], 
-                [0,1,1,1, 'contentframe'], 
-                [1,0,2,1, 'statusbar']
+                (0,0,1,1, 'media_tree'), 
+                (0,1,1,1, 'content_frame'), 
+                (1,0,2,1, 'statusbar')
             }
         }
 

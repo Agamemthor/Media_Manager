@@ -18,11 +18,13 @@ Possibly temporary: pgadmin to check the database. http://localhost:5050/browser
 
 #### Multimedia manager 
 - Todo: open database from .env file
+- 
 - User interface to browse files and folders similar to a file explorer.
 - Connection to the Postgres database running in the container. Certain parameters will be saved and loaded from there, as well as user created metadata on files and folders. 
 - The app recursively loops over all files in the rootfolder directory, and for files of specific mediatypes, saves file and folder metadata in the database.
 - The treeview is generated for the files and folders in the dataframe, respecting folder hierarchy. 
 - The treeview can be interacted with using a context menu
+- Todo: when scanning a folder of higher hierarchy, existing folders need to be checked if their parent is null. If true, we update it with the new parent_id
 
 #### Multimedia Slideshow
 - Todo: Configurable grid, from one single piece of media to i.e. a 2x4 grid.
@@ -30,3 +32,9 @@ Possibly temporary: pgadmin to check the database. http://localhost:5050/browser
 - Todo: Possible configuration also include merging cells together (i.e. span >1)
 - Todo: Can be used windowed and fullscreen (ideally borderless/menubarless fullscreen)
 - Media is resized to fit their grid's size to fit, respecting aspect ratio
+
+#### notes
+if there are no existing media files in the database, the user is asked for a rootfolder and scanning starts. 
+if there is data in the db, this is loaded automatically 
+mediafolder and mediafiles will be presented in a treeview, along with a media viewer.
+collection treeview is only shown when a collection is present. 

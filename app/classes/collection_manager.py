@@ -17,7 +17,6 @@ class  CollectionManager:
 
     def delete_collection(self, collection_id: int):
         self.db_manager.delete_collection(collection_id)
-
         pass
 
 class Collection:

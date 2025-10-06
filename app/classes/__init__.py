@@ -7,5 +7,10 @@ from .grid_manager import GridManager
 from .image_manager import ImageManager
 from .slideshow_manager import MultiSlideshowWindow
 from .db_manager import DBManager
+from .collection_manager import CollectionManager
+from .window_manager import WindowManager
 
-__all__ = ['MediaFile', 'MediaFolder', 'MediaManager', 'TreeviewManager', 'GridManager', 'ImageManager', 'MultiSlideshowWindow', 'DBManager']
+__all__ = ['MediaFile', 'MediaFolder', 'MediaManager'
+           , 'TreeviewManager', 'GridManager', 'ImageManager'
+           , 'MultiSlideshowWindow', 'DBManager', 'CollectionManager'
+           , 'CollectionManager', 'WindowManager']

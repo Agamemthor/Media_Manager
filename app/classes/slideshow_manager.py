@@ -119,7 +119,7 @@ class MultiSlideshowWindow:
         # Store and filter image files
         self.all_image_files = [
             f for f in image_files
-            if f.media_type.lower() in ["image", "gif", "jpg", "jpeg", "png", "bmp", "tiff"]
+            if f.media_type.lower() in ["image", "gif"]
         ]
 
         if not self.all_image_files:
@@ -134,9 +134,6 @@ class MultiSlideshowWindow:
 
         # Create the grid and cells
         self._create_grid()
-
-        # Bind escape key to close
-        self.slideshow_window.bind("<Escape>", lambda e: self.close())
 
         # Scheduling variables
         self.delay = 8000  # 8 seconds between images
@@ -170,8 +167,8 @@ class MultiSlideshowWindow:
         for row in range(self.rows):
             for col in range(self.cols):
                 # Create a frame for each cell
-                cell_frame = tk.Frame(self.slideshow_window, bg='black')
-                cell_frame.grid(row=row, column=col, sticky="nsew", padx=2, pady=2)
+                cell_frame = tk.Frame(self.slideshow_window, bg='black', borderwidth=0, highlightthickness=0)
+                cell_frame.grid(row=row, column=col, sticky="nsew", padx=0, pady=0)
 
                 # Create a slideshow cell for this frame
                 cell = SlideshowCell(cell_frame)
