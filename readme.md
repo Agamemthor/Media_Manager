@@ -29,3 +29,4 @@ Possibly temporary: pgadmin to check the database. http://localhost:5050/browser
 - Todo: Possible configuration also include merging cells together (i.e. span >1)
 - Todo: Can be used windowed and fullscreen (ideally borderless/menubarless fullscreen)
 - Media is resized to fit their grid's size to fit, respecting aspect ratio
+- Todo: schedule images by timers, which can be reused. timer class?
