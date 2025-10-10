@@ -1,16 +1,18 @@
 from tkinter import messagebox
 import psycopg2
 from psycopg2 import OperationalError
+from .media_file import MediaFile
+from .media_folder import MediaFolder
 
 class DBManager:
-    def __init__(self, dbname='media_manager', user='youruser', password='yourpassword', host='localhost', port='5432', retries=5, delay=3):
-        self.dbname = dbname
-        self.user = user
-        self.password = password
-        self.host = host
-        self.port = port
-        self.retries = retries
-        self.delay = delay
+    def __init__(self, conn_config):
+        self.dbname = conn_config['dbname'],
+        self.user = conn_config['user']
+        self.password = conn_config['password']
+        self.host = conn_config['host']
+        self.port = conn_config['port']
+        self.retries = conn_config['retries']
+        self.delay = conn_config['delay']
         self.conn = None
         self.connect()
 
@@ -50,6 +52,49 @@ class DBManager:
         if self.conn:
             self.conn.close()
             self.conn = None
+    
+    def get_media_file_folder_from_db(self):    
+        cur = self.get_cursor()
+    
+        # Load folders
+        cur.execute("""
+            SELECT folder_id, folder_path, parent_folder_id
+            FROM media_folders
+            ORDER BY folder_path
+        """)
+        folders = []
+        for row in cur.fetchall():
+            folder = MediaFolder(
+                folder_id=row[0],
+                folder_path=row[1],
+                parent_folder_id=row[2]
+            )
+            folders.append(folder)
+
+        # Load files
+        cur.execute("""
+            SELECT folder_id, file_name, file_extension, file_size_kb, folder_path
+            FROM media_files
+            JOIN media_types mt
+            on mt
+            ORDER BY folder_path, file_name
+        """)
+        files = []
+        for row in cur.fetchall():
+            file = MediaFile(
+                folder_id=row[0],
+                file_name=row[1],
+                file_extension=row[2],
+                file_size_kb=row[3],
+                folder_path=row[4]
+            )
+            file._media_type = self.extension_to_type.get(file.file_extension.lower(), "unknown")
+            files.append(file)
+
+        # Create and return MediaManager
+        self.media_manager = MediaManager(folders, files, self.extension_to_type)
+        self.status["text"] = f"Loaded {len(files)} media files."
+        return self.media_manager
 
     def load_media_type_mappings(self):
         """Load media type mappings from the database"""

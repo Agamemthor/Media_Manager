@@ -40,18 +40,16 @@ class MediaManager:
         }
     }
     """
-    def __init__(self, db_manager, window_config):
+    def __init__(self, db_manager, window_config, grid_config):
         self.window_manager = WindowManager(window_config)
         root=self.window_manager.get_root()
         self.root=root
 
-        self.db_manager = db_manager
+        self.db_manager = db_manager        
         
-        self.window_config = window_config
-        self.process_configuration()
-        
-        self.grid_manager = GridManager(root, window_config)
-        extension_to_type, valid_extensions = db_manager.load_media_type_mappings()
+        self.grid_manager = GridManager(root, grid_config)
+
+        self.extension_to_type, self.valid_extensions = db_manager.load_media_type_mappings()
 
         self.folders: List[MediaFolder] = folders
         self.files: List[MediaFile] = files
@@ -61,53 +59,10 @@ class MediaManager:
         self.folder_by_id: Dict[int, MediaFolder] = {f.folder_id: f for f in folders}
         self.folder_by_path: Dict[str, MediaFolder] = {f.folder_path: f for f in folders}
 
-        self.grid_manager = GridManager(root, grid_config)
-
-        # Get frame for the treeview (left side, first row)
-        self.treeview_frame = self.grid_manager.get_frame(row=0, column=0)
-
-        # Get empty frame for the right side (first row)
-        self.content_frame = self.grid_manager.get_frame(row=0, column=1)
-
-        # Create an image frame inside the content frame
-        self.image_frame = tk.Frame(self.content_frame)
-        self.image_frame.pack(fill="both", expand=True)
-        # Initialize ImageManager
-        self.image_manager = ImageManager(self.image_frame)
-
-        # Initialize Treeview in the left frame
-        self.tree = ttk.Treeview(self.treeview_frame)
-        self.tree.pack(side="left", fill="both", expand=True)
-
-        # Initialize TreeviewManager
-        self.treeview_manager = TreeviewManager(self.tree, self.image_manager)
-        #self.treeview_manager.multi_slideshow_manager = self.multi_slideshow_manager
-
-        # Add a scrollbar to the treeview
-        scrollbar = ttk.Scrollbar(self.treeview_frame, orient="vertical", command=self.tree.yview)
-        scrollbar.pack(side="right", fill="y")
-        self.tree.configure(yscrollcommand=scrollbar.set)
-
-
-        # Create a status bar frame that spans both columns in the second row
-        self.status_frame = self.grid_manager.get_frame(row=1, column=0, columnspan=2)
-
-        # Add a status label to the status frame
-        self.status = ttk.Label(self.status_frame, text="Ready", anchor="w", relief="sunken")
-        self.status.pack(fill="x", padx=5, pady=2)
-
-        # Load media type mappings
-        self._load_media_type_mappings()
-
-        # Load data
+        # Load existing data from the database
+        self.status["text"] = "Loading media data from database..."
+        self.root.update_idletasks()
         self.load_data()
-
-        # Populate treeview
-        if self.media_manager:
-            self.treeview_manager.populate(self.media_manager)
-
-        # Set media types for all files
-        self._set_media_types()
 
         # Establish folder relationships
         self._build_folder_hierarchy()
@@ -393,11 +348,12 @@ class MediaManager:
         except Exception as e:
             messagebox.showerror("Error", f"Failed to change root folder: {e}")
             self.status["text"] = "Error"
-
+    """
     def _set_media_types(self):
-        """Set media types for all files based on their extensions"""
+        "Set media types for all files based on their extensions"
         for file in self.files:
             file.media_type = self.extension_to_type.get(file.file_extension.lower(), "unknown")
+    """
 
     def _build_folder_hierarchy(self):
         """Build the folder hierarchy by setting parent references"""

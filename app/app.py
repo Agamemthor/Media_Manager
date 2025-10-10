@@ -1,15 +1,12 @@
 import os
 import tkinter as tk
 from tkinter import ttk, filedialog, messagebox
-import psycopg2
-from psycopg2 import OperationalError
 import pandas as pd
 import time
 from concurrent.futures import ThreadPoolExecutor
 import platform
 import subprocess
 from PIL import Image
-import cv2
 from dataclasses import dataclass, field 
 from typing import Dict, List, Tuple, Optional
 from classes import DBManager, MediaFile, MediaFolder, MediaManager, TreeviewManager, GridManager, ImageManager, MultiSlideshowWindow
@@ -46,7 +43,16 @@ class MediaManagerApp:
 
 if __name__ == "__main__": 
     try:
-        app = MediaManagerApp(DBManager())
+        conn_config = {
+            'dbname': 'media_manager',
+            'user': 'youruser',
+            'password': 'yourpassword',
+            'host': 'localhost',
+            'port': "5432",
+            'retries': 5,
+            'delay': 3
+        }
+        app = MediaManagerApp(DBManager(conn_config))
     except Exception as e:
         messagebox.showerror("Error", f"Failed to start application: {e}")
 
