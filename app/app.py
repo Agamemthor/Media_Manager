@@ -60,9 +60,6 @@ class MediaManagerApp:
         # Initialize ImageManager
         self.image_manager = ImageManager(self.image_frame)
 
-        # Initialize MultiSlideshowWindow
-        #
-
         # Initialize Treeview in the left frame
         self.tree = ttk.Treeview(self.treeview_frame)
         self.tree.pack(side="left", fill="both", expand=True)
@@ -378,8 +375,6 @@ class MediaManagerApp:
             messagebox.showerror("Error", f"Failed to scan media: {e}")
             self.status["text"] = "Error scanning media."
             raise
-
-
 
 
     def save_to_db(self, folders_data, files_data):
