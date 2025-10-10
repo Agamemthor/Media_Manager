@@ -54,7 +54,7 @@ class TreeviewManager:
         # Bind selection event
         self.tree.bind("<<TreeviewSelect>>", self._on_treeview_select)
 
-    def populate(self, media_manager):
+    def populate(self):
         """
         Populate the treeview using the MediaManager data.
 
@@ -70,7 +70,7 @@ class TreeviewManager:
             self.item_to_object = {}
 
             # Add root folders
-            for folder in media_manager.get_root_folders():
+            for folder in self.media_manager.get_root_folders():
                 self._add_folder_to_treeview("", folder)  # Empty string for root items
 
         except Exception as e:

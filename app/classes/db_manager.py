@@ -78,6 +78,7 @@ class DBManager:
             cur = self.conn.cursor()
             cur.execute("SELECT media_type_extension, media_type_description FROM media_types;")
             extension_to_type = {row[0].lower(): row[1] for row in cur.fetchall()}
+            self.extension_to_type = extension_to_type
             valid_extensions = set(self.extension_to_type.keys())
             return extension_to_type, valid_extensions  
         except Exception as e:

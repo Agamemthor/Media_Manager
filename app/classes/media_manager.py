@@ -42,23 +42,23 @@ class MediaManager:
     """
 
     def __init__(self, db_manager, window_config, grid_config):
+        self.gridmanager = None
         self.window_manager = WindowManager(window_config)
+        self.host_manager = HostManager(set_status=self.set_status)
+        self.db_manager = db_manager   
         root=self.window_manager.get_root()
         self.root=root
 
-        self.grid_manager = GridManager(root, grid_config)
-
-        self.host_manager = HostManager(set_status=self.set_status)
-        self.db_manager = db_manager   
-        
         self.media_files: List[MediaFile] = []
         self.media_folders: List[MediaFolder] = []
         self.media_folder_by_id: Dict[int, MediaFolder] 
         self.media_folder_by_path: Dict[str, MediaFolder]
 
-        self.load_data()
+        self.grid_manager = GridManager(self, root, grid_config)  
+
+        self.load_data() 
         
-        self.grid_manager.load_grid_from_config(grid_config)
+        self.grid_manager.create_content_cells()
 
 
     def load_data(self):
@@ -110,7 +110,7 @@ class MediaManager:
                 parent_folder_id=row[2]
             )
             folders.append(folder)
-        self.media_folders.append(folders)
+        self.media_folders.extend(folders)
 
         files = []
         for row in files_data:
@@ -123,7 +123,7 @@ class MediaManager:
             )
             file._media_type = self.extension_to_type.get(file.file_extension.lower(), "unknown")
             files.append(file)
-        self.media_files.append(files)
+        self.media_files.extend(files)
 
         self.update_media_data()
 
@@ -150,7 +150,8 @@ class MediaManager:
                 folder._files.append(file)
 
     def set_status(self, status_text: str):
-        self.gridmanager.set_status(status_text) 
+        if self.gridmanager:
+            self.gridmanager.set_status(status_text) 
 
     def get_folder_by_id(self, folder_id: int) -> Optional[MediaFolder]:
         """Get a folder by its ID"""
@@ -162,16 +163,16 @@ class MediaManager:
 
     def get_root_folders(self) -> List[MediaFolder]:
         """Get all root folders (those with no parent)"""
-        return [f for f in self.folders if f.parent_folder_id is None]
+        return [f for f in self.media_folders if f.parent_folder_id is None]
 
     def get_all_files(self) -> List[MediaFile]:
         """Get all files"""
-        return self.files
+        return self.media_files
 
     def get_files_by_extension(self, extension: str) -> List[MediaFile]:
         """Get all files with a specific extension"""
-        return [f for f in self.files if f.file_extension.lower() == extension.lower()]
+        return [f for f in self.media_files if f.file_extension.lower() == extension.lower()]
 
     def get_files_by_type(self, media_type: str) -> List[MediaFile]:
         """Get all files of a specific media type"""
-        return [f for f in self.files if f.media_type.lower() == media_type.lower()]
+        return [f for f in self.media_files if f.media_type.lower() == media_type.lower()]

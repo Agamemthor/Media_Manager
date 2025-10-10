@@ -10,8 +10,10 @@ from .db_manager import DBManager
 from .collection_manager import CollectionManager
 from .window_manager import WindowManager
 from .host_manager import HostManager
+from .content_frame import ContentFrame
 
 __all__ = ['MediaFile', 'MediaFolder', 'MediaManager'
            , 'TreeviewManager', 'GridManager', 'ImageManager'
            , 'MultiSlideshowWindow', 'DBManager', 'CollectionManager'
-           , 'CollectionManager', 'WindowManager', 'HostManager']
+           , 'CollectionManager', 'WindowManager', 'HostManager'
+           , 'ContentFrame']

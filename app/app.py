@@ -23,7 +23,7 @@ class MediaManagerApp:
             'show_custom_titlebar': False,
             'title': "Media Manager",
             'show_menubar': False,
-            'fullscreen': True, # does not work when borderless is True
+            'fullscreen': False, # does not work when borderless is True
             'always_on_top': False, # if borderless = true, app is always on top
             'exit_on_escape': True,  # does not work if borderless is True
             'fullscreen_on_f11': True,  # does not work if borderless is True
@@ -55,6 +55,7 @@ if __name__ == "__main__":
         'delay': 3
     }
     app = MediaManagerApp(DBManager(conn_config))
+    app.media_manager.root.mainloop()
     #except Exception as e:
         #messagebox.showerror("Error", f"Failed to start application: {e}")
 
