@@ -9,8 +9,9 @@ from .slideshow_manager import MultiSlideshowWindow
 from .db_manager import DBManager
 from .collection_manager import CollectionManager
 from .window_manager import WindowManager
+from .host_manager import HostManager
 
 __all__ = ['MediaFile', 'MediaFolder', 'MediaManager'
            , 'TreeviewManager', 'GridManager', 'ImageManager'
            , 'MultiSlideshowWindow', 'DBManager', 'CollectionManager'
-           , 'CollectionManager', 'WindowManager']
+           , 'CollectionManager', 'WindowManager', 'HostManager']

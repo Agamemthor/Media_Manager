@@ -3,12 +3,16 @@ import tkinter as tk
 from tkinter import ttk
 from typing import Optional, Dict, Tuple, List
 
+class GridCell:
+    def __init__(self, frame: tk.Frame, name: str):
+        self.frame = frame
+        self.name = name
+
 class GridManager:
     """
     A class to manage grid layouts in the application.
-    Handles the main window grid and creation of new windows.
+    Handles the main window grid 
     """
-
     def __init__(self, root: tk.Tk, grid_config: Dict = None):
         """
         Initialize the GridManager with the root window and grid configuration.
@@ -19,18 +23,75 @@ class GridManager:
         """
         self.root = root
         self.main_window = root
-        self.sub_windows: Dict[str, tk.Toplevel] = {}  # Track sub-windows by name
+        self.grid_cells = list[GridCell] = []
 
         # Set default or provided grid configuration
         self.grid_config = grid_config or {
-            'rows': 1,
-            'columns': 2,
-            'row_weights': [1],
-            'column_weights': [1, 1]  # Default 30% left, 70% right
-        }
+            'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
+            'grid_columns': 2,
+            'row_weights': [1, 0],  # First row expands, second row fixed height
+            'column_weights': [1, 3],  # Equal column weights
+            'cell_configs': { #row, column, rowspan, columnspan, name
+                (0,0,1,1, 'media_tree'), 
+                (0,1,1,1, 'content_frame'), 
+                (1,0,2,1, 'statusbar')
+                }
+            }      
 
-        # Initialize the main window grid
-        self._initialize_main_grid()
+        for cell_config in grid_config['cell_configs']:
+            self.update_grid_cell(cell_config)  
+
+    def update_grid_cell(self, cell_config):
+        row, column, rowspan, columnspan, name = cell_config
+
+        frame = self.get_frame(row, column, rowspan, columnspan)
+        frame.name = name  # Assign a name attribute to the frame
+
+        if name == 'statusbar':
+            # Add a status label to the status frame
+            frame.status = ttk.Label(frame, text="Ready", anchor="w", relief="sunken")
+            frame.status.pack(fill="x", padx=5, pady=2)
+
+        if name == 'media_tree':
+                
+
+        if name == 'content_frame':
+            pass
+
+
+    def set_status(self, status_text: str):
+        statusbar = self.get_frame_by_name('statusbar')
+        if statusbar:
+            statusbar.status["text"] = status_text
+            self.root.update_idletasks()
+
+    def load_grid_from_config(self, grid_config: Dict):
+        # Configure grid weights
+        for i in range(self.grid_config['rows']):
+            self.main_window.grid_rowconfigure(i, weight=self.grid_config['row_weights'][i])
+
+        for i in range(self.grid_config['columns']):
+            self.main_window.grid_columnconfigure(i, weight=self.grid_config['column_weights'][i])
+
+    def get_frame(self, row: int = 0, column: int = 0, rowspan: int = 1, columnspan: int = 1) -> tk.Frame:
+        """
+        Get a frame positioned at the specified grid location.
+
+        Args:
+            row: Row position
+            column: Column position
+            rowspan: Number of rows to span
+            columnspan: Number of columns to span
+
+        Returns:
+            A frame configured for the specified grid location
+        """
+        #Todo: check if frame already exists at this location and return it instead of creating a new one
+        frame = tk.Frame(self.main_window)
+        frame.grid(row=row, column=column, rowspan=rowspan, columnspan=columnspan, sticky="nsew")
+        return frame
+
+
 
         # Get frame for the treeview (left side, first row)
         #self.treeview_frame = self.grid_manager.get_frame(row=0, column=0)
@@ -65,109 +126,3 @@ class GridManager:
         #self.status.pack(fill="x", padx=5, pady=2)
 
         #self.treeview_manager.populate(self.media_manager)
-
-    def _initialize_main_grid(self):
-        """Initialize the main window grid based on configuration"""
-        # Configure grid weights
-        for i in range(self.grid_config['rows']):
-            self.main_window.grid_rowconfigure(i, weight=self.grid_config['row_weights'][i])
-
-        for i in range(self.grid_config['columns']):
-            self.main_window.grid_columnconfigure(i, weight=self.grid_config['column_weights'][i])
-
-    def get_frame(self, row: int = 0, column: int = 0, rowspan: int = 1, columnspan: int = 1) -> tk.Frame:
-        """
-        Get a frame positioned at the specified grid location.
-
-        Args:
-            row: Row position
-            column: Column position
-            rowspan: Number of rows to span
-            columnspan: Number of columns to span
-
-        Returns:
-            A frame configured for the specified grid location
-        """
-        frame = tk.Frame(self.main_window)
-        frame.grid(row=row, column=column, rowspan=rowspan, columnspan=columnspan, sticky="nsew")
-        return frame
-
-    def create_new_window(self, title: str, size: Tuple[int, int] = (800, 600)) -> tk.Toplevel:
-        """
-        Create a new sub-window.
-
-        Args:
-            title: The title for the new window
-            size: The size of the new window (width, height)
-
-        Returns:
-            The newly created Toplevel window#json string 
-        """
-        window = tk.Toplevel(self.root)
-        window.title(title)
-        window.geometry(f"{size[0]}x{size[1]}")
-        self.sub_windows[title] = window
-        return window
-
-    def get_window_by_name(self, name: str) -> Optional[tk.Toplevel]:
-        """
-        Get a sub-window by its name.
-
-        Args:
-            name: The title/name of the window
-
-        Returns:
-            The Toplevel window if found, None otherwise
-        """
-        return self.sub_windows.get(name)
-
-    def close_window(self, name: str) -> bool:
-        """
-        Close a sub-window by its name.
-
-        Args:
-            name: The title/name of the window
-
-        Returns:
-            True if the window was found and closed, False otherwise
-        """
-        window = self.sub_windows.get(name)
-        if window:
-            window.destroy()
-            del self.sub_windows[name]
-            return True
-        return False
-
-    def close_all_windows(self):
-        """Close all sub-windows"""
-        for name, window in list(self.sub_windows.items()):
-            window.destroy()
-            del self.sub_windows[name]
-
-    def update_grid(self, rows: int = None, columns: int = None,
-                   row_weights: List[int] = None,
-                   column_weights: List[int] = None):
-        """
-        Update the main window grid configuration.
-
-        Args:
-            rows: Number of rows (optional)
-            columns: Number of columns (optional)
-            row_weights: List of row weights (optional)
-            column_weights: List of column weights (optional)
-        """
-        if rows is not None:
-            self.grid_config['rows'] = rows
-        if columns is not None:
-            self.grid_config['columns'] = columns
-        if row_weights is not None:
-            self.grid_config['row_weights'] = row_weights
-        if column_weights is not None:
-            self.grid_config['column_weights'] = column_weights
-
-        # Reconfigure the grid
-        for i in range(self.grid_config['rows']):
-            self.main_window.grid_rowconfigure(i, weight=self.grid_config['row_weights'][i])
-
-        for i in range(self.grid_config['columns']):
-            self.main_window.grid_columnconfigure(i, weight=self.grid_config['column_weights'][i])

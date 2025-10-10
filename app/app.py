@@ -15,19 +15,21 @@ class MediaManagerApp:
     def __init__(self, db_manager):
         self.db_manager = db_manager
         
-        #Get rootfolder from db or prompt for one
-        self.rootfolder = self.get_rootfolder()
-        self.root.title(self.rootfolder)
-
         # Initialize Mediamanager with 2x2 grid (1 row for content, 1 row for status bar)
         window_config = {
             'height': 600,
-            'width': 800,  
-            'show_taskbar': True,
+            'width': 800,
+            'borderless': False, #the overrideredirect parameter is a fickle beast. Ignores the always_on_top parameter and app is always on top of everything
+            'show_custom_titlebar': False,
             'title': "Media Manager",
-            'show_menubar': True,
-            'show_statusbar': True,
-            'fullscreen': False,
+            'show_menubar': False,
+            'fullscreen': True, # does not work when borderless is True
+            'always_on_top': False, # if borderless = true, app is always on top
+            'exit_on_escape': True,  # does not work if borderless is True
+            'fullscreen_on_f11': True,  # does not work if borderless is True
+        }
+        
+        grid_config = {
             'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
             'grid_columns': 2,
             'row_weights': [1, 0],  # First row expands, second row fixed height
@@ -39,20 +41,20 @@ class MediaManagerApp:
             }
         }
 
-        self.media_manager = MediaManager(db_manager, window_config)
+        self.media_manager = MediaManager(db_manager, window_config, grid_config)
 
 if __name__ == "__main__": 
-    try:
-        conn_config = {
-            'dbname': 'media_manager',
-            'user': 'youruser',
-            'password': 'yourpassword',
-            'host': 'localhost',
-            'port': "5432",
-            'retries': 5,
-            'delay': 3
-        }
-        app = MediaManagerApp(DBManager(conn_config))
-    except Exception as e:
-        messagebox.showerror("Error", f"Failed to start application: {e}")
+    #try:
+    conn_config = {
+        'dbname': 'media_manager',
+        'user': 'youruser',
+        'password': 'yourpassword',
+        'host': 'localhost',
+        'port': "5432",
+        'retries': 5,
+        'delay': 3
+    }
+    app = MediaManagerApp(DBManager(conn_config))
+    #except Exception as e:
+        #messagebox.showerror("Error", f"Failed to start application: {e}")
 

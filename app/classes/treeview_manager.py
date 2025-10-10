@@ -10,25 +10,20 @@ from .media_folder import MediaFolder
 from .slideshow_manager import MultiSlideshowWindow 
 
 class TreeviewManager:
-    def __init__(self, tree: ttk.Treeview, image_manager=None):
-        """
-        Initialize the TreeviewManager with a Treeview widget.
+    def __init__(self, media_manager, frame):
 
-        Args:
-            tree: The Treeview widget to manage
-            image_manager: Optional ImageManager instance for displaying images
-        """
-        self.tree = tree
+        self.media_manager = media_manager   
+        self.frame = frame
         self.item_to_object: Dict[str, Any] = {}  # Maps item IDs to MediaFolder/MediaFile objects
-        self.image_manager = image_manager  # Store reference to ImageManager
+        
+        self.initialize_treeview()              
 
-        # Configure treeview columns
+    def initialize_treeview(self):
+        self.tree = ttk.Treeview(self.frame)
+        self.tree.pack(side="left", fill="both", expand=True)
+
         self._configure_columns()
         self.bind_events()
-
-    def set_image_manager(self, image_manager):
-        """Set or update the ImageManager reference"""
-        self.image_manager = image_manager
 
     def _configure_columns(self):
         """Configure the treeview columns"""
@@ -43,6 +38,21 @@ class TreeviewManager:
         self.tree.heading("type", text="Type")
         self.tree.heading("size", text="Size (KB)")
         self.tree.heading("path", text="Path")
+
+
+    def bind_events(self):
+        """Bind all necessary events for the treeview"""
+        # Bind right-click for context menu
+        self.tree.bind("<Button-3>", self._show_context_menu)
+
+        # Bind left click to close context menu
+        self.tree.bind("<Button-1>", self._close_context_menu_on_click)
+
+        # Bind focus out to close context menu
+        self.tree.bind("<FocusOut>", self._close_context_menu_on_click)
+
+        # Bind selection event
+        self.tree.bind("<<TreeviewSelect>>", self._on_treeview_select)
 
     def populate(self, media_manager):
         """
@@ -150,8 +160,8 @@ class TreeviewManager:
         """Handle treeview selection changes to update the image display"""
         selected_item = self.tree.selection()
         if not selected_item:
-            if self.image_manager:
-                self.image_manager.clear()
+            if self.media_manager:
+                self.media_manager.clear_content_frame()
             return
 
         # Get the selected object
@@ -175,19 +185,6 @@ class TreeviewManager:
             if self.image_manager:
                 self.image_manager.clear()
 
-    def bind_events(self):
-        """Bind all necessary events for the treeview"""
-        # Bind right-click for context menu
-        self.tree.bind("<Button-3>", self._show_context_menu)
-
-        # Bind left click to close context menu
-        self.tree.bind("<Button-1>", self._close_context_menu_on_click)
-
-        # Bind focus out to close context menu
-        self.tree.bind("<FocusOut>", self._close_context_menu_on_click)
-
-        # Bind selection event
-        self.tree.bind("<<TreeviewSelect>>", self._on_treeview_select)
 
     # In your TreeviewManager class
     def _show_context_menu(self, event):
