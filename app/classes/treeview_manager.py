@@ -8,13 +8,15 @@ import subprocess
 from .media_file import MediaFile 
 from .media_folder import MediaFolder 
 from .slideshow_manager import MultiSlideshowWindow 
+from .content_frame import ContentFrame
 
 class TreeviewManager:
     def __init__(self, media_manager, frame):
 
         self.media_manager = media_manager   
         self.frame = frame
-        self.item_to_object: Dict[str, Any] = {}  # Maps item IDs to MediaFolder/MediaFile objects
+        self.item_to_object: Dict[str, Any] = {}  # Maps item IDs to MediaFolder/MediaFile objects\
+        self.content_frame_cell: ContentFrame = None
         
         self.initialize_treeview()              
 
@@ -156,35 +158,28 @@ class TreeviewManager:
         self.clear()
         self.populate(media_manager)
 
+    def set_content_frame_cell(self, content_frame_cell: ContentFrame):
+        """Set the linked content frame cell to update on selection changes"""
+        self.content_frame_cell = content_frame_cell        
+
     def _on_treeview_select(self, event):
-        """Handle treeview selection changes to update the image display"""
         selected_item = self.tree.selection()
         if not selected_item:
-            if self.media_manager:
-                self.media_manager.clear_content_frame()
+            if self.content_frame_cell:
+                print(f"content_frame_cell type: {type(self.content_frame_cell)}")
+                self.content_frame_cell.display_media(None)
+            else:
+                print("No content_frame_cell set!")
             return
 
-        # Get the selected object
         selected_obj = self.get_selected_object()
-
-        if selected_obj and isinstance(selected_obj, MediaFile):
-            # Check if it's an image file
-            if selected_obj.media_type.lower() in ["image", "gif"]:
-                # Construct the full path
-                full_path = os.path.join(selected_obj.folder_path, selected_obj.file_name)
-
-                # Display the image if we have an ImageManager
-                if self.image_manager:
-                    self.image_manager.display_image(full_path)
+        print(f"Selected object: {selected_obj}, type: {type(selected_obj)}")
+        print(f"content_frame_cell: {self.content_frame_cell}, type: {type(self.content_frame_cell)}")
+        if selected_obj:
+            if self.content_frame_cell and hasattr(self.content_frame_cell, 'display_media'):
+                self.content_frame_cell.display_media(selected_obj)
             else:
-                # Clear if not an image
-                if self.image_manager:
-                    self.image_manager.clear()
-        else:
-            # Clear if not a file
-            if self.image_manager:
-                self.image_manager.clear()
-
+                print("No valid content_frame_cell set or missing display_media method!")
 
     # In your TreeviewManager class
     def _show_context_menu(self, event):

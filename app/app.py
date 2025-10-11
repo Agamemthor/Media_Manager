@@ -34,10 +34,10 @@ class MediaManagerApp:
             'grid_columns': 2,
             'row_weights': [1, 0],  # First row expands, second row fixed height
             'column_weights': [1, 3],  # Equal column weights
-            'cell_configs': { #row, column, rowspan, columnspan, name
-                (0,0,1,1, 'media_tree'), 
-                (0,1,1,1, 'content_frame'), 
-                (1,0,2,1, 'statusbar')
+            'cell_configs': { #type, name, row, column, rowspan, columnspan, linked_content_frame_name
+                ('media_tree', 'media_tree_1', 0, 0, 1, 1, 'content_frame_1'),
+                ('content_frame', 'content_frame_1', 0, 1, 1, 1, ''),
+                ('statusbar', 'statusbar_1', 1, 0, 1, 2, '')
             }
         }
 

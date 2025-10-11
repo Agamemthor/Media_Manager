@@ -41,7 +41,8 @@ class ImageManager:
             relief="groove",
             anchor="center"
         )
-        self.current_image_label.pack(fill="both", expand=True)
+        self.current_image_label.place(relx=0.5, rely=0.5, anchor="center")
+        #self.current_image_label.pack(fill="both", expand=True)
 
     def display_image(self, file_path: str):
         """
@@ -77,38 +78,33 @@ class ImageManager:
                 self.on_image_error(str(e))
 
     def _display_scaled_image(self):
-        """Display the current image scaled to fit the frame"""
         if not self.current_pil_image or not self.current_image_path:
             return
 
         try:
-            # Get current frame dimensions
             frame_width = self.frame.winfo_width()
             frame_height = self.frame.winfo_height()
-
-            # Minimum dimensions to prevent tiny images
             min_width, min_height = 100, 100
             display_width = max(frame_width - 20, min_width)
             display_height = max(frame_height - 20, min_height)
 
-            # Scale image to fit while maintaining aspect ratio
-            width, height = self.current_pil_image.size
-            ratio = min(display_width/width, display_height/height)
-            new_size = (int(width * ratio), int(height * ratio))
+            if hasattr(self, '_last_image_cache'):
+                last_path, last_size = self._last_image_cache
+                if last_path == self.current_image_path and last_size == (display_width, display_height):
+                    return
+            self._last_image_cache = (self.current_image_path, (display_width, display_height))
 
-            # Resize the image
-            resized_image = self.current_pil_image.resize(new_size, Image.LANCZOS)
+            # Use thumbnail for faster downscaling
+            img = self.current_pil_image.copy()
+            img.thumbnail((display_width, display_height), Image.LANCZOS)
 
-            # Convert to PhotoImage
-            tk_image = ImageTk.PhotoImage(resized_image)
-
-            # Update the label
+            tk_image = ImageTk.PhotoImage(img)
             if not self.current_image_label:
                 self.current_image_label = ttk.Label(self.frame)
-                self.current_image_label.pack(fill="both", expand=True)
+                self.current_image_label.place(relx=0.5, rely=0.5, anchor="center")
 
             self.current_image_label.configure(image=tk_image)
-            self.current_image_label.image = tk_image  # Keep a reference
+            self.current_image_label.image = tk_image
 
         except Exception as e:
             print(f"Error displaying scaled image: {e}")

@@ -1,4 +1,5 @@
 from .media_file import MediaFile
+from .media_folder import MediaFolder
 from .image_manager import ImageManager
 
 class ContentFrame:
@@ -12,13 +13,12 @@ class ContentFrame:
 
     def display_media(self, media):
         """Display a MediaFile or MediaFolder in the content frame."""
-        from .media_folder import MediaFolder  # Import here if needed
 
         if isinstance(media, MediaFile):
             if media.media_type == 'image':
                 if not self.image_manager:
                     self.image_manager = ImageManager(self.frame)
-                self.image_manager.display_image(media.file_path)
+                self.image_manager.display_image(media.get_path())
             else:
                 print(f"Unsupported media type: {media.media_type}")
                 self.set_placeholder()
@@ -28,13 +28,14 @@ class ContentFrame:
             print(f"Displaying folder: {media.folder_path}")
             self.set_placeholder()
         else:
+            self.set_placeholder()
             print("Unsupported media type or object")
         
     def set_placeholder(self):
         """Set a placeholder in the content frame."""
         if not self.image_manager:
             self.image_manager = ImageManager(self.frame)
-        self.image_manager.load_placeholder()
+        self.image_manager.clear()
 
 
     

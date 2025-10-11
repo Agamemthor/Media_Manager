@@ -33,10 +33,10 @@ class MediaManager:
         'grid_columns': 2,
         'row_weights': [1, 0],  # First row expands, second row fixed height
         'column_weights': [1, 3],  # Equal column weights
-        'cell_configs': { #row, column, rowspan, columnspan, name
-            (0,0,1,1, 'media_tree'), 
-            (0,1,1,1, 'content_frame'), 
-            (1,0,2,1, 'statusbar')
+        'cell_configs': { #type, name, row, column, rowspan, columnspan, linked_content_frame_name
+            ('media_tree', 'media_tree_1', 0, 0, 1, 1, 'content_frame_1'),
+            ('content_frame', 'content_frame_1', 0, 1, 1, 1, ''),
+            ('statusbar', 'statusbar_1', 1, 0, 1, 2, '')
         }
     }
     """
@@ -55,11 +55,13 @@ class MediaManager:
         self.media_folder_by_path: Dict[str, MediaFolder]
 
         self.grid_manager = GridManager(self, root, grid_config)  
+        self.grid_manager.set_status("Loading data...")
 
         self.load_data() 
         
-        self.grid_manager.create_content_cells()
-
+        self.grid_manager.set_status("Creating grid...")
+        self.grid_manager.create_content()
+        self.grid_manager.set_status("Ready.")
 
     def load_data(self):
         """

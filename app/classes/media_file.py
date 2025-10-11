@@ -1,5 +1,6 @@
 # /app/classes/media_file.py
 from dataclasses import dataclass, field
+import os
 
 @dataclass
 class MediaFile:
@@ -24,3 +25,7 @@ class MediaFile:
         """Convert to tuple for database insertion"""
         return (self.folder_id, self.file_name, self.file_extension,
                 self.file_size_kb, self.folder_path)
+    
+    def get_path(self) -> str:
+        """Get the full file path"""
+        return os.path.join(self.folder_path, f"{self.file_name}")
