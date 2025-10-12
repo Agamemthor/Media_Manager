@@ -9,7 +9,7 @@ import subprocess
 from PIL import Image
 from dataclasses import dataclass, field 
 from typing import Dict, List, Tuple, Optional
-from classes import DBManager, MediaFile, MediaFolder, MediaManager, TreeviewManager, GridManager, ImageManager, MultiSlideshowWindow
+from classes import DBManager, MediaFile, MediaFolder, MediaManager, TreeviewManager, GridManager, ImageManager, MultiSlideshow
 
 class MediaManagerApp:
     def __init__(self):
@@ -48,7 +48,7 @@ class MediaManagerApp:
         }
 
         self.media_manager = MediaManager(conn_config, window_config, grid_config)
-
+ 
 if __name__ == "__main__": 
     #try:
 

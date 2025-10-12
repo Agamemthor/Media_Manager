@@ -24,7 +24,11 @@ class GridCell:
 
         if self.type == 'media_tree':
             self.create_treeview_cell() 
-            self.linked_content_frame_name = linked_content_frame_name        
+            self.linked_content_frame_name = linked_content_frame_name    
+
+        if self.type == 'slideshow':
+            self.create_content_frame_cell()
+            self.media_manager.slideshow_manager.register_slideshow_cell(self.content_frame)
     
     def create_content(self):     
         if self.type == 'media_tree':

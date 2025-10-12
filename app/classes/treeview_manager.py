@@ -7,7 +7,7 @@ import platform
 import subprocess
 from .media_file import MediaFile 
 from .media_folder import MediaFolder 
-from .slideshow_manager import MultiSlideshowWindow 
+from .slideshow_manager import MultiSlideshow
 from .content_frame import ContentFrame
 
 class TreeviewManager:
@@ -227,9 +227,8 @@ class TreeviewManager:
         """Start a slideshow for all images in the selected folder."""
         # Get all image files recursively from the folder
         all_files = folder.get_files_recursive()
-        self.multi_slideshow_manager = MultiSlideshowWindow(all_files)
         # Create and start the multi-slideshow
-        self.multi_slideshow_manager.start_slideshows(all_files)
+        self.media_manager.slideshow_manager.start_slideshow_preset_2x4_img(all_files)
 
     def _close_context_menu_on_click(self, event):
         """Close context menu when clicking, but only if it's open"""

@@ -8,6 +8,7 @@ from typing import Set
 class DBManager:
     def __init__(self, conn_config, set_status):
         self.set_status = set_status
+        self.conn_config = conn_config
         self.dbname = conn_config['dbname']
         self.user = conn_config['user']
         self.password = conn_config['password']

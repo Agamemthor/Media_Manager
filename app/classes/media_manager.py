@@ -8,6 +8,8 @@ from .grid_manager import GridManager
 from .window_manager import WindowManager
 from .host_manager import HostManager   
 from .db_manager import DBManager
+from .content_frame import ContentFrame
+from .slideshow_manager import MultiSlideshow
 from tkinter import ttk
 import tkinter as tk
 
@@ -49,30 +51,44 @@ class MediaManager:
     }
     """
 
-    def __init__(self, db_config, window_config, grid_config):
+    def __init__(self, conn_config, window_config, grid_config, media_folders=[], media_files = []):
         self.gridmanager = None
+        self.sub_media_managers: list[MediaManager] = []
         self.host_manager = HostManager(set_status=self.set_status)
         self.window_manager = WindowManager(window_config)
+        self.slideshow_manager = MultiSlideshow(self)
         
         root=self.window_manager.get_root()
         self.root=root
 
-        self.media_files: List[MediaFile] = []
-        self.media_folders: List[MediaFolder] = []
+        self.grid_manager = GridManager(self, root, grid_config) 
+
         self.media_folder_by_id: Dict[int, MediaFolder] 
         self.media_folder_by_path: Dict[str, MediaFolder]
 
-        self.grid_manager = GridManager(self, root, grid_config)  
-        self.grid_manager.set_status("Loading data...")
-
-        self.db_manager =  DBManager(db_config, set_status=self.set_status)   
-
-        self.load_data() 
+        if media_files:
+            self.media_files = media_files
+            self.media_folders = media_folders
+            self.update_media_data()
+            if len(self.slideshow_manager.slideshow_cells) > 0:
+                self.slideshow_manager._start_slideshows()
+        else:
+            self.media_files: List[MediaFile] = []
+            self.media_folders: List[MediaFolder] = []
         
-        self.grid_manager.set_status("Creating grid...")
-        self.grid_manager.create_content()
-        self.grid_manager.set_status("Ready.")
+            self.grid_manager.set_status("Loading data...")
+            self.db_manager =  DBManager(conn_config, set_status=self.set_status)   
 
+            self.load_data() 
+            
+            self.grid_manager.set_status("Creating grid...")
+            self.grid_manager.create_content()
+            self.grid_manager.set_status("Ready.")
+
+    def start_new_media_manager(self, conn_config, window_config, grid_config, media_folders=[], media_files = []):
+        media_manager = MediaManager(self.media_manager.db_manager.conn_config, window_config, grid_config,media_folders, media_files)
+        self.sub_media_managers.append(media_manager)
+        
     def load_data(self):
         """
         Load media data from the database or scan for new data if none exists.
@@ -139,28 +155,6 @@ class MediaManager:
 
         self.update_media_data()
 
-    def update_media_data(self):
-        self.media_folder_by_id: Dict[int, MediaFolder] = {f.folder_id: f for f in self.media_folders}
-        self.media_folder_by_path: Dict[str, MediaFolder] = {f.folder_path: f for f in self.media_folders}
-
-        """Build the folder hierarchy by setting parent references"""
-        for folder in self.media_folders:
-            if folder.parent_folder_id:
-                parent = self.media_folder_by_id.get(folder.parent_folder_id)
-                if parent:
-                    folder._parent = parent
-                    parent._subfolders.append(folder)
-
-        """Assign files to their respective folders
-        clean up existing assignments first"""
-        for folder in self.media_folders:
-            folder._files = []  # Initialize empty list
-
-        for file in self.media_files:
-            folder = self.media_folder_by_id.get(file.folder_id)
-            if folder:
-                folder._files.append(file)
-
     def set_status(self, status_text: str):
         if self.gridmanager:
             self.gridmanager.set_status(status_text) 
@@ -188,7 +182,30 @@ class MediaManager:
     def get_files_by_type(self, media_type: str) -> List[MediaFile]:
         """Get all files of a specific media type"""
         return [f for f in self.media_files if f.media_type.lower() == media_type.lower()]
-    
+       
+    def update_media_data(self):
+        for folder in self.media_folders:
+            folder._parent = None
+            folder._files = []
+            folder._subfolders = []
+
+        self.media_folder_by_id: Dict[int, MediaFolder] = {f.folder_id: f for f in self.media_folders}
+        self.media_folder_by_path: Dict[str, MediaFolder] = {f.folder_path: f for f in self.media_folders}
+
+        """Build the folder hierarchy by setting parent references"""
+        for folder in self.media_folders:
+            if folder.parent_folder_id:
+                parent = self.media_folder_by_id.get(folder.parent_folder_id)
+                if parent:
+                    folder._parent = parent
+                    parent._subfolders.append(folder)
+
+        #assign files to folders
+        for file in self.media_files:
+            folder = self.media_folder_by_id.get(file.folder_id)
+            if folder:
+                folder._files.append(file)
+
     def delete_media_folder(self, folder: MediaFolder):
         """
         Delete a media folder and all its subfolders and files from the database and internal structures.
@@ -199,18 +216,15 @@ class MediaManager:
         try:
             folder_ids_to_delete = set()
             folder_ids_to_delete.add(folder.folder_id)
+
             subfolders = folder.get_folders_recursive()
             for folder in subfolders:
                 folder_ids_to_delete.add(folder.folder_id)
             
-            # Delete from database
             self.db_manager.delete_folders_and_files(folder_ids_to_delete)
 
-            # Remove from internal structures
-            _media_folders = [f for f in self.media_folders if f.folder_id not in folder_ids_to_delete]
-            _media_files = [f for f in self.media_files if f.folder_id not in folder_ids_to_delete]
-            self.media_folders = _media_folders
-            self.media_files = _media_files
+            self.media_folders = [f for f in self.media_folders if f.folder_id not in folder_ids_to_delete]
+            self.media_files = [f for f in self.media_files if f.folder_id not in folder_ids_to_delete]
             self.update_media_data()
 
             # Refresh the UI
@@ -223,5 +237,9 @@ class MediaManager:
             self.db_manager.rollback()
             messagebox.showerror("Error", f"An error occurred while deleting the folder: {e}")
             self.set_status("Error occurred during deletion.")
+    
+
+        
+            
 
             

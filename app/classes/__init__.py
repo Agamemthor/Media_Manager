@@ -5,7 +5,7 @@ from .media_manager import MediaManager
 from .treeview_manager import TreeviewManager
 from .grid_manager import GridManager
 from .image_manager import ImageManager
-from .slideshow_manager import MultiSlideshowWindow
+from .slideshow_manager import MultiSlideshow
 from .db_manager import DBManager
 from .collection_manager import CollectionManager
 from .window_manager import WindowManager
@@ -14,6 +14,6 @@ from .content_frame import ContentFrame
 
 __all__ = ['MediaFile', 'MediaFolder', 'MediaManager'
            , 'TreeviewManager', 'GridManager', 'ImageManager'
-           , 'MultiSlideshowWindow', 'DBManager', 'CollectionManager'
+           , 'MultiSlideshow', 'DBManager', 'CollectionManager'
            , 'CollectionManager', 'WindowManager', 'HostManager'
            , 'ContentFrame']
