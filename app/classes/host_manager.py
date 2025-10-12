@@ -43,9 +43,8 @@ class HostManager:
                 # Process files in current folder
                 for file in files:
                     processed_files += 1
-                    if processed_files % 100 == 0:  # Update progress every 100 files
+                    if processed_files % 100 == 0:  # Update progress every 100 files                        
                         self.set_status(f"Scanning {processed_files} files, found {file_count} media files...")
-                        self.root.update_idletasks()
 
                     ext = os.path.splitext(file)[1].lower()
                     if ext in valid_extensions:

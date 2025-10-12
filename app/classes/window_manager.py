@@ -83,7 +83,6 @@ class WindowManager:
         self.root.attributes('-fullscreen', value)
         self.fullscreen = value
 
-
     def toggle_always_on_top(self, value: bool) -> None:
         """Toggles whether the window stays on top of others."""
         self.root.attributes('-topmost', value)

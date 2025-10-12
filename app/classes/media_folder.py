@@ -38,3 +38,10 @@ class MediaFolder:
             all_files.extend(folder.get_files_recursive())
         return all_files
     
+    def get_folders_recursive(self) -> List['MediaFolder']:
+        """Get all subfolders recursively"""
+        all_folders = self._subfolders.copy()
+        for folder in self._subfolders:
+            all_folders.extend(folder.get_folders_recursive())
+        return all_folders
+    

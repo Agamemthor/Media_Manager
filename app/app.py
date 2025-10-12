@@ -12,9 +12,16 @@ from typing import Dict, List, Tuple, Optional
 from classes import DBManager, MediaFile, MediaFolder, MediaManager, TreeviewManager, GridManager, ImageManager, MultiSlideshowWindow
 
 class MediaManagerApp:
-    def __init__(self, db_manager):
-        self.db_manager = db_manager
-        
+    def __init__(self):
+        conn_config = {
+            'dbname': 'media_manager',
+            'user': 'youruser',
+            'password': 'yourpassword',
+            'host': 'localhost',
+            'port': "5432",
+            'retries': 5,
+            'delay': 3
+        }
         # Initialize Mediamanager with 2x2 grid (1 row for content, 1 row for status bar)
         window_config = {
             'height': 600,
@@ -27,8 +34,7 @@ class MediaManagerApp:
             'always_on_top': False, # if borderless = true, app is always on top
             'exit_on_escape': True,  # does not work if borderless is True
             'fullscreen_on_f11': True,  # does not work if borderless is True
-        }
-        
+        }        
         grid_config = {
             'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
             'grid_columns': 2,
@@ -41,20 +47,12 @@ class MediaManagerApp:
             }
         }
 
-        self.media_manager = MediaManager(db_manager, window_config, grid_config)
+        self.media_manager = MediaManager(conn_config, window_config, grid_config)
 
 if __name__ == "__main__": 
     #try:
-    conn_config = {
-        'dbname': 'media_manager',
-        'user': 'youruser',
-        'password': 'yourpassword',
-        'host': 'localhost',
-        'port': "5432",
-        'retries': 5,
-        'delay': 3
-    }
-    app = MediaManagerApp(DBManager(conn_config))
+
+    app = MediaManagerApp()
     app.media_manager.root.mainloop()
     #except Exception as e:
         #messagebox.showerror("Error", f"Failed to start application: {e}")

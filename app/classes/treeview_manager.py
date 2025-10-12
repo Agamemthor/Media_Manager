@@ -17,7 +17,7 @@ class TreeviewManager:
         self.frame = frame
         self.item_to_object: Dict[str, Any] = {}  # Maps item IDs to MediaFolder/MediaFile objects\
         self.content_frame_cell: ContentFrame = None
-        
+        self._arrow_delay_active = False
         self.initialize_treeview()              
 
     def initialize_treeview(self):
@@ -51,10 +51,14 @@ class TreeviewManager:
         self.tree.bind("<Button-1>", self._close_context_menu_on_click)
 
         # Bind focus out to close context menu
-        self.tree.bind("<FocusOut>", self._close_context_menu_on_click)
+        #self.tree.bind("<FocusOut>", self._close_context_menu_on_click)
 
         # Bind selection event
         self.tree.bind("<<TreeviewSelect>>", self._on_treeview_select)
+
+        # Bind arrow keys with delay to prevent rapid navigation
+        self.tree.bind("<KeyPress-Up>", self._delayed_arrow)
+        self.tree.bind("<KeyPress-Down>", self._delayed_arrow)        
 
     def populate(self):
         """
@@ -153,10 +157,10 @@ class TreeviewManager:
             self.tree.delete(item)
         self.item_to_object = {}
 
-    def refresh(self, media_manager):
+    def refresh(self):
         """Refresh the treeview with updated data from the MediaManager"""
         self.clear()
-        self.populate(media_manager)
+        self.populate()
 
     def set_content_frame_cell(self, content_frame_cell: ContentFrame):
         """Set the linked content frame cell to update on selection changes"""
@@ -173,8 +177,6 @@ class TreeviewManager:
             return
 
         selected_obj = self.get_selected_object()
-        print(f"Selected object: {selected_obj}, type: {type(selected_obj)}")
-        print(f"content_frame_cell: {self.content_frame_cell}, type: {type(self.content_frame_cell)}")
         if selected_obj:
             if self.content_frame_cell and hasattr(self.content_frame_cell, 'display_media'):
                 self.content_frame_cell.display_media(selected_obj)
@@ -193,24 +195,25 @@ class TreeviewManager:
             self.tree.selection_set(item)
             self.tree.focus(item)
 
-            # Create context menu
             self.context_menu = Menu(self.tree, tearoff=0)
-
-            # Get the selected object
             selected_obj = self.item_to_object.get(item)
 
-            # Add "Show in Explorer" option (always available)
             self.context_menu.add_command(
                 label="Show in Explorer",
                 command=self._show_in_explorer
             )
 
-            # Add "Start Slideshow" option only for folders
             if selected_obj and isinstance(selected_obj, MediaFolder):
                 self.context_menu.add_command(
                     label="Start Slideshow",
                     command=lambda: self._start_folder_slideshow(selected_obj)
                 )
+
+            if selected_obj and isinstance(selected_obj, MediaFolder):
+                self.context_menu.add_command(
+                    label="Delete media folder",
+                    command=lambda: self.media_manager.delete_media_folder(selected_obj)
+                )                
 
             # Show the menu
             try:
@@ -269,12 +272,6 @@ class TreeviewManager:
     def get_object_by_item(self, item_id):
         """
         Get the media object associated with a specific treeview item.
-
-        Args:
-            item_id: The treeview item ID
-
-        Returns:
-            The associated media object, or None if not found
         """
         return self.item_to_object.get(item_id)
 
@@ -297,3 +294,68 @@ class TreeviewManager:
 
         for item in self.tree.get_children():
             collapse(item)
+                
+    def _delayed_arrow(self, event):
+        if self._arrow_delay_active:
+            return "break"  # Ignore key press
+        self._arrow_delay_active = True
+
+        # Determine next item to select
+        current = self.tree.selection()
+        next_item = self._get_next_item(current, event.keysym)
+        if next_item:
+            self.tree.selection_set(next_item)
+            self.tree.focus(next_item)
+            self._on_treeview_select(None)  # Show image
+
+        # Set timer to allow next key after delay
+        self.tree.after(250, self._reset_arrow_delay)
+        return "break"
+
+    def _reset_arrow_delay(self):
+        self._arrow_delay_active = False
+
+    def _get_next_item(self, current, direction):
+        """
+        Returns the next or previous item in the treeview based on the current selection and direction.
+        Expands folders when navigating into them.
+        direction: 'Up' or 'Down'
+        """
+        # If nothing is selected, start with the first item
+        all_items = self.tree.get_children("")
+        if not current:
+            if all_items:
+                return all_items[0]
+            return None
+        current_item = current[0]
+        # Get all items in display order (flattened)
+        def flatten_items(parent):
+            items = []
+            for item in self.tree.get_children(parent):
+                items.append(item)
+                items.extend(flatten_items(item))
+            return items
+        flat_list = flatten_items("")
+        if current_item not in flat_list:
+            return None
+        idx = flat_list.index(current_item)
+        next_item = None
+        if direction == "Down":
+            if idx + 1 < len(flat_list):
+                next_item = flat_list[idx + 1]
+        elif direction == "Up":
+            if idx - 1 >= 0:
+                next_item = flat_list[idx - 1]
+        if next_item:
+            # If next_item is a folder, expand it
+            if "folder" in self.tree.item(next_item, "tags"):
+                self.tree.item(next_item, open=True)
+                # Re-flatten to include newly visible children
+                flat_list = flatten_items("")
+                idx = flat_list.index(next_item)
+                # If moving down, select first child if exists
+                if direction == "Down" and idx + 1 < len(flat_list):
+                    child = flat_list[idx + 1]
+                    return child
+            return next_item
+        return current_item  # If at edge, stay on current

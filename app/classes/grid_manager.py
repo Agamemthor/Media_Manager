@@ -38,10 +38,13 @@ class GridCell:
                 grid_cell.frame.grid_propagate(False)
                 self.frame.grid_propagate(False)
 
-
-
     def create_treeview_cell(self):
         self.treeview = TreeviewManager(self.media_manager, self.frame)   
+    
+    def refresh_treeview(self):
+        if self.type == 'media_tree':
+            if self.treeview: 
+                self.treeview.refresh()                         
 
     def create_content_frame_cell(self):     
         self.content_frame = ContentFrame(self.media_manager, self.frame)
@@ -63,19 +66,7 @@ class GridManager:
         self.grid_cells: List[GridCell] = []
         self.media_manager = media_manager
         self.statusbar = None
-
-        # Set default or provided grid configuration
-        self.grid_config = grid_config or {
-            'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
-            'grid_columns': 2,
-            'row_weights': [1, 0],  # First row expands, second row fixed height
-            'column_weights': [1, 3],  # Equal column weights
-            'cell_configs': { #type, name, row, column, rowspan, columnspan, linked_content_frame_name
-                ('media_tree', 'media_tree_1', 0, 0, 1, 1, 'content_frame_1'),
-                ('content_frame', 'content_frame_1', 0, 1, 1, 1, ''),
-                ('statusbar', 'statusbar_1', 1, 0, 1, 2, '')
-            }
-        }  
+        self.grid_config = grid_config
 
         #initialize grid layout
         self.load_grid_from_config(self.grid_config) 
@@ -97,7 +88,7 @@ class GridManager:
     def set_status(self, status_text: str):
         if not self.statusbar:
             for cell in self.grid_cells:
-                if cell.name == 'statusbar':
+                if cell.type == 'statusbar':
                     self.statusbar = cell.frame
                     break
         
@@ -128,32 +119,8 @@ class GridManager:
             if cell.name == name:
                 return cell
         return None
-
-        # Get frame for the treeview (left side, first row)
-        #self.treeview_frame = self.grid_manager.get_frame(row=0, column=0)
-
-        # Get empty frame for the right side (first row)
-        #self.content_frame = self.grid_manager.get_frame(row=0, column=1)
-
-        # Create an image frame inside the content frame
-        #self.image_frame = tk.Frame(self.content_frame)
-        #self.image_frame.pack(fill="both", expand=True)
-        # Initialize ImageManager
-        #self.image_manager = ImageManager(self.image_frame)
-
-        # Initialize Treeview in the left frame
-        #self.tree = ttk.Treeview(self.treeview_frame)
-        #self.tree.pack(side="left", fill="both", expand=True)
-
-        # Initialize TreeviewManager
-        #self.treeview_manager = TreeviewManager(self.tree, self.image_manager)
-        #self.treeview_manager.multi_slideshow_manager = self.multi_slideshow_manager
-
-        # Add a scrollbar to the treeview
-        #scrollbar = ttk.Scrollbar(self.treeview_frame, orient="vertical", command=self.tree.yview)
-        #scrollbar.pack(side="right", fill="y")
-        #self.tree.configure(yscrollcommand=scrollbar.set)
-
-
-
-        #self.treeview_manager.populate(self.media_manager)
+    
+    def refresh_grids(self):
+        for cell in self.grid_cells:
+            if cell.type == 'media_tree':
+                cell.treeview.refresh()

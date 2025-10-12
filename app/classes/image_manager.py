@@ -94,11 +94,14 @@ class ImageManager:
                     return
             self._last_image_cache = (self.current_image_path, (display_width, display_height))
 
-            # Use thumbnail for faster downscaling
+            # Always resize (upscale or downscale) to fill the cell
             img = self.current_pil_image.copy()
-            img.thumbnail((display_width, display_height), Image.LANCZOS)
+            width, height = img.size
+            ratio = min(display_width / width, display_height / height)
+            new_size = (int(width * ratio), int(height * ratio))
+            resized_image = img.resize(new_size, Image.LANCZOS)
 
-            tk_image = ImageTk.PhotoImage(img)
+            tk_image = ImageTk.PhotoImage(resized_image)
             if not self.current_image_label:
                 self.current_image_label = ttk.Label(self.frame)
                 self.current_image_label.place(relx=0.5, rely=0.5, anchor="center")

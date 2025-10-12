@@ -3,9 +3,11 @@ import psycopg2
 from psycopg2 import OperationalError
 from .media_file import MediaFile
 from .media_folder import MediaFolder
+from typing import Set
 
 class DBManager:
-    def __init__(self, conn_config):
+    def __init__(self, conn_config, set_status):
+        self.set_status = set_status
         self.dbname = conn_config['dbname']
         self.user = conn_config['user']
         self.password = conn_config['password']
@@ -34,7 +36,7 @@ class DBManager:
                 if i < self.retries - 1:
                     time.sleep(self.delay)
         raise Exception("Could not connect to PostgreSQL after several retries.")
-    
+
     def get_folders_from_db(self):
         cur = self.get_cursor()
         cur.execute("""
@@ -69,8 +71,7 @@ class DBManager:
     def close(self):
         if self.conn:
             self.conn.close()
-            self.conn = None
-    
+            self.conn = None    
 
     def load_media_type_mappings(self):
         """Load media type mappings from the database"""
@@ -100,8 +101,7 @@ class DBManager:
 
             # Batch insert folders with their parent relationships
             if folders_tuples:
-                self.status["text"] = f"Saving {len(folders_tuples)} folders to database..."
-                self.root.update_idletasks()
+                self.set_status(f"Saving {len(folders_tuples)} folders to database...")
 
                 from psycopg2.extras import execute_values
                 execute_values(
@@ -120,8 +120,7 @@ class DBManager:
 
             # Batch insert files (without media_type)
             if files_tuples:
-                self.status["text"] = f"Saving {len(files_tuples)} files to database..."
-                self.root.update_idletasks()
+                self.set_status(f"Saving {len(files_tuples)} files to database...")
 
                 execute_values(
                     cur,
@@ -138,10 +137,28 @@ class DBManager:
                 )
 
             self.conn.commit()
-            self.status["text"] = f"Saved {len(files_tuples)} files to database."
+            self.set_status (f"Saved {len(files_tuples)} files to database.")
             
         except Exception as e:
             self.conn.rollback()
             messagebox.showerror("Error", f"Failed to save to database: {e}")
-            self.status["text"] = "Error saving to database."
+            self.set_status("Error saving to database.")
             raise
+
+    def delete_folders_and_files(self, folder_ids: Set[int]):
+        "Delete folders and their associated files from the database. "
+        try:
+            cur = self.conn.cursor()
+            # Delete files associated with the folders
+            cur.execute("""
+                DELETE FROM media_files
+                WHERE folder_id = ANY(%s);
+            """, (list(folder_ids),))
+            # Delete the folders themselves
+            cur.execute("""
+                DELETE FROM media_folders
+                WHERE folder_id = ANY(%s);
+            """, (list(folder_ids),))
+        except Exception as e:
+            self.conn.rollback()
+            raise e

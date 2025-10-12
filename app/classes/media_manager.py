@@ -7,6 +7,7 @@ from .media_file import MediaFile
 from .grid_manager import GridManager
 from .window_manager import WindowManager
 from .host_manager import HostManager   
+from .db_manager import DBManager
 from tkinter import ttk
 import tkinter as tk
 
@@ -14,7 +15,15 @@ import tkinter as tk
 class MediaManager:
     """
     Represents a window, and coordinates all processes on that window.
-
+    conn_config = {
+        'dbname': 'media_manager',
+        'user': 'youruser',
+        'password': 'yourpassword',
+        'host': 'localhost',
+        'port': "5432",
+        'retries': 5,
+        'delay': 3
+    }
     window_config = {
         'height': 600,
         'width': 800,
@@ -26,8 +35,7 @@ class MediaManager:
         'always_on_top': False, # if borderless = true, app is always on top
         'exit_on_escape': True,  # does not work if borderless is True
         'fullscreen_on_f11': True,  # does not work if borderless is True
-    }
-    
+    }    
     grid_config = {
         'grid_rows': 2,  # 2 rows: 1 for content, 1 for status bar
         'grid_columns': 2,
@@ -41,11 +49,11 @@ class MediaManager:
     }
     """
 
-    def __init__(self, db_manager, window_config, grid_config):
+    def __init__(self, db_config, window_config, grid_config):
         self.gridmanager = None
-        self.window_manager = WindowManager(window_config)
         self.host_manager = HostManager(set_status=self.set_status)
-        self.db_manager = db_manager   
+        self.window_manager = WindowManager(window_config)
+        
         root=self.window_manager.get_root()
         self.root=root
 
@@ -56,6 +64,8 @@ class MediaManager:
 
         self.grid_manager = GridManager(self, root, grid_config)  
         self.grid_manager.set_status("Loading data...")
+
+        self.db_manager =  DBManager(db_config, set_status=self.set_status)   
 
         self.load_data() 
         
@@ -94,11 +104,11 @@ class MediaManager:
         folder_path = filedialog.askdirectory(title="Select root folder")
         if not folder_path:
             return None
-        folders_data, files_data = self.host_manager.scan_media(valid_extensions=self.valid_extensions, min_file_id=max_file_id, min_folder_id=max_folder_id)
+        folders_data, files_data = self.host_manager.scan_media(valid_extensions=self.valid_extensions,folder_path=folder_path, min_file_id=max_file_id, min_folder_id=max_folder_id)
 
         self.set_status("Saving to database...")
         # Save to database
-        self.save_to_db(folders_data, files_data)
+        self.db_manager.save_to_db(folders_data, files_data)
 
         return folders_data, files_data        
 
@@ -178,3 +188,40 @@ class MediaManager:
     def get_files_by_type(self, media_type: str) -> List[MediaFile]:
         """Get all files of a specific media type"""
         return [f for f in self.media_files if f.media_type.lower() == media_type.lower()]
+    
+    def delete_media_folder(self, folder: MediaFolder):
+        """
+        Delete a media folder and all its subfolders and files from the database and internal structures.
+        """
+        if not messagebox.askyesno("Delete Media Folder", f"Are you sure you want to delete the folder '{folder.folder_path}' and all its contents? This action cannot be undone."):
+            return
+
+        try:
+            folder_ids_to_delete = set()
+            folder_ids_to_delete.add(folder.folder_id)
+            subfolders = folder.get_folders_recursive()
+            for folder in subfolders:
+                folder_ids_to_delete.add(folder.folder_id)
+            
+            # Delete from database
+            self.db_manager.delete_folders_and_files(folder_ids_to_delete)
+
+            # Remove from internal structures
+            _media_folders = [f for f in self.media_folders if f.folder_id not in folder_ids_to_delete]
+            _media_files = [f for f in self.media_files if f.folder_id not in folder_ids_to_delete]
+            self.media_folders = _media_folders
+            self.media_files = _media_files
+            self.update_media_data()
+
+            # Refresh the UI
+            if self.grid_manager:
+                self.grid_manager.refresh_grids()
+
+            self.db_manager.commit()            
+            self.set_status(f"Deleted folder '{folder.folder_path}'.")
+        except Exception as e:
+            self.db_manager.rollback()
+            messagebox.showerror("Error", f"An error occurred while deleting the folder: {e}")
+            self.set_status("Error occurred during deletion.")
+
+            
