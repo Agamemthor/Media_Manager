@@ -1,4 +1,4 @@
-# /app/classes/media_folder.py
+# /app/classes/collection_manager.py
 from dataclasses import dataclass, field
 from typing import List, Dict, Optional, Set
 from .media_file import MediaFile  # Import MediaFile for type hints

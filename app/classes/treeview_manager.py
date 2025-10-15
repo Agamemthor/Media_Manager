@@ -1,5 +1,4 @@
 # /app/classes/treeview_manager.py
-#import tkinter as tk
 from tkinter import ttk, Menu
 from typing import Dict, Optional, List, Any
 import os
@@ -55,10 +54,6 @@ class TreeviewManager:
 
         # Bind selection event
         self.tree.bind("<<TreeviewSelect>>", self._on_treeview_select)
-
-        # Bind arrow keys with delay to prevent rapid navigation
-        self.tree.bind("<KeyPress-Up>", self._delayed_arrow)
-        self.tree.bind("<KeyPress-Down>", self._delayed_arrow)        
 
     def populate(self):
         """
@@ -226,9 +221,10 @@ class TreeviewManager:
     def _start_folder_slideshow(self, folder: MediaFolder):
         """Start a slideshow for all images in the selected folder."""
         # Get all image files recursively from the folder
-        all_files = folder.get_files_recursive()
+        folders = folder.get_folders_recursive()
+        files = folder.get_files_recursive()
         # Create and start the multi-slideshow
-        self.media_manager.slideshow_manager.start_slideshow_preset_2x4_img(all_files)
+        self.media_manager.start_2x4_slideshow_in_new_window(folders, files)
 
     def _close_context_menu_on_click(self, event):
         """Close context menu when clicking, but only if it's open"""
@@ -291,70 +287,8 @@ class TreeviewManager:
             for child in self.tree.get_children(item):
                 collapse(child)
 
-        for item in self.tree.get_children():
+        for item in self.tree.get_children():        # Bind arrow keys with delay to prevent rapid navigation
+        #self.tree.bind("<KeyPress-Up>", self._delayed_arrow)
+        #self.tree.bind("<KeyPress-Down>", self._delayed_arrow)        
             collapse(item)
-                
-    def _delayed_arrow(self, event):
-        if self._arrow_delay_active:
-            return "break"  # Ignore key press
-        self._arrow_delay_active = True
-
-        # Determine next item to select
-        current = self.tree.selection()
-        next_item = self._get_next_item(current, event.keysym)
-        if next_item:
-            self.tree.selection_set(next_item)
-            self.tree.focus(next_item)
-            self._on_treeview_select(None)  # Show image
-
-        # Set timer to allow next key after delay
-        self.tree.after(250, self._reset_arrow_delay)
-        return "break"
-
-    def _reset_arrow_delay(self):
-        self._arrow_delay_active = False
-
-    def _get_next_item(self, current, direction):
-        """
-        Returns the next or previous item in the treeview based on the current selection and direction.
-        Expands folders when navigating into them.
-        direction: 'Up' or 'Down'
-        """
-        # If nothing is selected, start with the first item
-        all_items = self.tree.get_children("")
-        if not current:
-            if all_items:
-                return all_items[0]
-            return None
-        current_item = current[0]
-        # Get all items in display order (flattened)
-        def flatten_items(parent):
-            items = []
-            for item in self.tree.get_children(parent):
-                items.append(item)
-                items.extend(flatten_items(item))
-            return items
-        flat_list = flatten_items("")
-        if current_item not in flat_list:
-            return None
-        idx = flat_list.index(current_item)
-        next_item = None
-        if direction == "Down":
-            if idx + 1 < len(flat_list):
-                next_item = flat_list[idx + 1]
-        elif direction == "Up":
-            if idx - 1 >= 0:
-                next_item = flat_list[idx - 1]
-        if next_item:
-            # If next_item is a folder, expand it
-            if "folder" in self.tree.item(next_item, "tags"):
-                self.tree.item(next_item, open=True)
-                # Re-flatten to include newly visible children
-                flat_list = flatten_items("")
-                idx = flat_list.index(next_item)
-                # If moving down, select first child if exists
-                if direction == "Down" and idx + 1 < len(flat_list):
-                    child = flat_list[idx + 1]
-                    return child
-            return next_item
-        return current_item  # If at edge, stay on current
+            

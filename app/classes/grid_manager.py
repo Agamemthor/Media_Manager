@@ -51,7 +51,7 @@ class GridCell:
                 self.treeview.refresh()                         
 
     def create_content_frame_cell(self):     
-        self.content_frame = ContentFrame(self.media_manager, self.frame)
+        self.content_frame = ContentFrame(self.media_manager, self)
 
     def create_statusbar_cell(self):
         # Add a status label to the status frame
@@ -73,7 +73,7 @@ class GridManager:
         self.grid_config = grid_config
 
         #initialize grid layout
-        self.load_grid_from_config(self.grid_config) 
+        self.load_grid_from_config() 
 
         #initialize grid cells
         for cell_config in self.grid_config['cell_configs']:
@@ -100,21 +100,45 @@ class GridManager:
             self.statusbar.status["text"] = status_text
             self.root.update_idletasks()
 
-    def load_grid_from_config(self, grid_config: Dict):
-        # Configure grid weights
+    def load_grid_from_config(self):
+        uniform_row = self.grid_config['uniform_row']
+        uniform_col = self.grid_config['uniform_col']
+
         for i in range(self.grid_config['grid_rows']):
             weight = self.grid_config['row_weights'][i]
-            self.main_window.grid_rowconfigure(i, weight=weight, minsize=24)
-
+            self.main_window.grid_rowconfigure(
+                i,
+                weight=weight,
+                minsize=24,
+                uniform=uniform_row,
+                pad=0  # Remove row padding
+            )
         for i in range(self.grid_config['grid_columns']):
-            self.main_window.grid_columnconfigure(i, weight=self.grid_config['column_weights'][i])
+            self.main_window.grid_columnconfigure(
+                i,
+                weight=self.grid_config['column_weights'][i],
+                uniform=uniform_col,
+                pad=0  # Remove column padding
+            )
 
     def get_frame(self, row: int = 0, column: int = 0, rowspan: int = 1, columnspan: int = 1) -> tk.Frame:
         """Get a frame positioned at the specified grid location."""
         #Todo: check if frame already exists at this location and return it instead of creating a new one
-        frame = tk.Frame(self.main_window)
-        frame.grid(row=row, column=column, rowspan=rowspan, columnspan=columnspan, sticky="nsew")
-        #@frame.grid_propagate(False)
+        frame = tk.Frame(self.main_window,        
+                            bd=0,               # Remove border
+                            highlightthickness=0,  # Remove highlight
+                            bg="black"          # Match background color (optional))
+        )   
+        frame.grid(
+            row=row,
+            column=column,
+            rowspan=rowspan,
+            columnspan=columnspan,
+            sticky="nsew",
+            padx=0,  # Remove horizontal padding
+            pady=0   # Remove vertical padding
+        )
+        frame.grid_propagate(False)
         return frame
     
     def get_grid_cell_by_name(self, name: str) -> Optional[GridCell]:

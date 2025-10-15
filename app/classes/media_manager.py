@@ -51,12 +51,14 @@ class MediaManager:
     }
     """
 
-    def __init__(self, conn_config, window_config, grid_config, media_folders=[], media_files = []):
+    def __init__(self, conn_config, window_config, grid_config, media_folders=[], media_files = [], parent_manager = None):
         self.gridmanager = None
+        self.parent_manager = parent_manager
         self.sub_media_managers: list[MediaManager] = []
         self.host_manager = HostManager(set_status=self.set_status)
-        self.window_manager = WindowManager(window_config)
+        self.window_manager = WindowManager(parent_manager,window_config)
         self.slideshow_manager = MultiSlideshow(self)
+        self.db_manager =  DBManager(conn_config, set_status=self.set_status)  
         
         root=self.window_manager.get_root()
         self.root=root
@@ -64,31 +66,26 @@ class MediaManager:
         self.grid_manager = GridManager(self, root, grid_config) 
 
         self.media_folder_by_id: Dict[int, MediaFolder] 
-        self.media_folder_by_path: Dict[str, MediaFolder]
+        self.media_folder_by_path: Dict[str, MediaFolder]        
 
-        if media_files:
+        if media_files and media_folders:
             self.media_files = media_files
             self.media_folders = media_folders
             self.update_media_data()
             if len(self.slideshow_manager.slideshow_cells) > 0:
-                self.slideshow_manager._start_slideshows()
+                self.slideshow_manager._start_slideshows(self.media_files)
         else:
             self.media_files: List[MediaFile] = []
             self.media_folders: List[MediaFolder] = []
         
-            self.grid_manager.set_status("Loading data...")
-            self.db_manager =  DBManager(conn_config, set_status=self.set_status)   
+            self.grid_manager.set_status("Loading data...") 
 
             self.load_data() 
             
             self.grid_manager.set_status("Creating grid...")
             self.grid_manager.create_content()
             self.grid_manager.set_status("Ready.")
-
-    def start_new_media_manager(self, conn_config, window_config, grid_config, media_folders=[], media_files = []):
-        media_manager = MediaManager(self.media_manager.db_manager.conn_config, window_config, grid_config,media_folders, media_files)
-        self.sub_media_managers.append(media_manager)
-        
+      
     def load_data(self):
         """
         Load media data from the database or scan for new data if none exists.
@@ -238,8 +235,52 @@ class MediaManager:
             messagebox.showerror("Error", f"An error occurred while deleting the folder: {e}")
             self.set_status("Error occurred during deletion.")
     
-
+    def start_2x4_slideshow_in_new_window(self,media_folders: List[MediaFolder], media_files: List[MediaFile]):
+        """Start a new MediaManager instance with slideshow configuration for the given media files."""
+        window_config = {
+            'height': 600,
+            'width': 800,
+            'borderless': False,
+            'show_custom_titlebar': False,
+            'title': "Slideshow",
+            'show_menubar': False,
+            'fullscreen': True,
+            'always_on_top': False,
+            'exit_on_escape': True,
+            'fullscreen_on_f11': True,
+        }
+        grid_config = {
+            'grid_rows': 2,
+            'grid_columns': 4,
+            'row_weights': [1, 1],
+            'column_weights': [1, 1, 1, 1],
+            'uniform_row' : 'row',
+            'uniform_col' : 'column',
+            'cell_configs': {
+                ('slideshow', 'slideshow_1', 0, 0, 1, 1, ''),
+                ('slideshow', 'slideshow_2', 0, 1, 1, 1, ''),
+                ('slideshow', 'slideshow_3', 0, 2, 1, 1, ''),
+                ('slideshow', 'slideshow_4', 0, 3, 1, 1, ''),
+                ('slideshow', 'slideshow_5', 1, 0, 1, 1, ''),
+                ('slideshow', 'slideshow_6', 1, 1, 1, 1, ''),
+                ('slideshow', 'slideshow_7', 1, 2, 1, 1, ''),
+                ('slideshow', 'slideshow_8', 1, 3, 1, 1, ''),
+            }
+        }
+        self.start_new_media_manager(
+            window_config,
+            grid_config,
+            media_folders = media_folders,
+            media_files=media_files
+        )       
+            
+    def start_new_media_manager(self, window_config, grid_config, media_folders=[], media_files = []):
+        media_manager = MediaManager(
+            conn_config=self.db_manager.conn_config, 
+            window_config=window_config, 
+            grid_config=grid_config,
+            parent_manager=self,
+            media_folders=media_folders, 
+            media_files=media_files)
+        self.sub_media_managers.append(media_manager)
         
-            
-
-            

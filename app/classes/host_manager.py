@@ -1,3 +1,4 @@
+# /app/classes/host_manager.py
 import os
 from tkinter import messagebox, filedialog
 

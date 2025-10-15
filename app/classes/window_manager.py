@@ -1,10 +1,15 @@
+# /app/classes/window_manager.py
 import tkinter as tk
 from typing import Dict, Tuple
 
 class WindowManager:
 
-    def __init__(self, window_config: Dict):
-        self.root = tk.Tk()
+    def __init__(self,parent_media_manager, window_config: Dict):
+        if parent_media_manager:
+            root = tk.Toplevel(parent_media_manager.root)  # Use Toplevel, not Tk
+        else:
+            root = tk.Tk()
+        self.root = root
         self.window_config = window_config
         self.has_resize_grips = False  
         self.fullscreen = self.window_config.get('fullscreen', False)
@@ -15,7 +20,7 @@ class WindowManager:
         self.fullscreen = not self.fullscreen
         self.toggle_fullscreen(self.fullscreen)
 
-    def get_root(self) -> tk.Tk:
+    def get_root(self):
         """Returns the root Tkinter window."""
         return self.root
 
@@ -39,18 +44,18 @@ class WindowManager:
 
         if 'always_on_top' in window_config:
             self.toggle_always_on_top(window_config['always_on_top'])
-
-        if 'exit_on_escape' in window_config:
+        
+        if window_config.get('exit_on_escape', False):
             self.root.bind("<Escape>", lambda e: self.close_window())
             self.root.focus_force()  # Force focus to the window
 
-        if 'fullscreen_on_f11' in window_config:
+        if window_config.get('fullscreen_on_f11', False):
             self.root.bind("<F11>", lambda e: self.toggle_fullscreen(not self.fullscreen))
             self.root.focus_force()  # Force focus to the window
             
     def close_window(self) -> None:
         """Closes the root window."""
-        self.root.quit()
+        #self.root.quit()
         self.root.destroy()
         
     def resize(self, dimensions: Tuple[int, int]) -> None:

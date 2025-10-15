@@ -29,7 +29,7 @@ CREATE TABLE IF NOT EXISTS Parameters (
     Parameter_Value VARCHAR(500)
 );
 
-
+/*
 CREATE OR REPLACE VIEW Media_Files_Extended AS
 SELECT
     mf.File_ID, mf.File_Name, mf.File_Extension, mf.File_Size_KB, mf.Media_Height, mf.Media_Width,
@@ -38,6 +38,7 @@ SELECT
 FROM Media_Files mf
 JOIN Media_Folders mfd ON mf.Folder_ID = mfd.Folder_ID
 JOIN Media_Types mty ON mf.File_Extension = mty.Media_Type_Extension;
+*/
 
 -- Insert default media types 
 INSERT INTO Media_Types (Media_Type_Description, Media_Type_Extension)

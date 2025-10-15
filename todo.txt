@@ -1,0 +1,2 @@
+refactoring
+- consistent seperation of handling data. i.e. between media_manager and db_manager, load_media_type_mappings vs get_folders_from_db
