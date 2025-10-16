@@ -1,2 +1,18 @@
 refactoring
-- consistent seperation of handling data. i.e. between media_manager and db_manager, load_media_type_mappings vs get_folders_from_db
+- Remove any overly broad exception handling. Add exception handling on areas which are particularly vulnerable. Make all exception handling consistent.
+- Remove any redundant comments. Have comments be brief. Docstrings should be consistently applied, and ideally only one line without describing the input/output
+- make naming conventions consistent,  use snake_case when possible
+- remove unused imports
+- move any magic numbers, and other hardcoded configuration and implement env variables and create an .env variable and/or config.ini with these parameters.
+- remove any tight coupling, and apply dependency injection whenever possible
+- implement python's logging module, and replace any print statements with logging. We keep using the set_status function since handling a statusbar with tkinter has proven tricky.
+
+later?
+- A. Duplicate Frame Creation Logic. Files: grid_manager.py, window_manager.py
+- Repeated Status Updates
+- File: treeview_manager.py _add_folder_to_treeview is called recursively, but the logic for adding files and folders is similar. Refactor to reduce duplication.
+- Files: image_manager.py, slideshow_manager.py. Both classes handle image loading and display
+- unit testing
+- Use Context Managers for Resources Action: Use with statements for database connections and file operations.
+- G. Error Handling for File Operations Action: Add checks for file existence and permissions before operations.
+- Optimize Database Queries Action: Use batch inserts and indexes for large datasets. Consider async database operations if performance is critical.

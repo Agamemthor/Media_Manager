@@ -1,4 +1,3 @@
-# /app/classes/media_file.py
 from dataclasses import dataclass, field
 import os
 
@@ -13,19 +12,24 @@ class MediaFile:
 
     @property
     def media_type(self) -> str:
-        """Get the media type based on file extension"""
+        """Get the media type based on file extension."""
         return self._media_type
 
     @media_type.setter
     def media_type(self, value: str):
-        """Set the media type"""
+        """Set the media type."""
         self._media_type = value
 
-    def to_tuple(self):
-        """Convert to tuple for database insertion"""
-        return (self.folder_id, self.file_name, self.file_extension,
-                self.file_size_kb, self.folder_path)
-    
+    def to_tuple(self) -> tuple:
+        """Convert to tuple for database insertion."""
+        return (
+            self.folder_id,
+            self.file_name,
+            self.file_extension,
+            self.file_size_kb,
+            self.folder_path,
+        )
+
     def get_path(self) -> str:
-        """Get the full file path"""
+        """Get the full file path."""
         return os.path.join(self.folder_path, f"{self.file_name}")

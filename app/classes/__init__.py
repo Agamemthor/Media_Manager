@@ -1,4 +1,3 @@
-# /app/classes/__init__.py
 from .media_file import MediaFile
 from .media_folder import MediaFolder
 from .media_manager import MediaManager
@@ -12,8 +11,17 @@ from .window_manager import WindowManager
 from .host_manager import HostManager
 from .content_frame import ContentFrame
 
-__all__ = ['MediaFile', 'MediaFolder', 'MediaManager'
-           , 'TreeviewManager', 'GridManager', 'ImageManager'
-           , 'MultiSlideshow', 'DBManager', 'CollectionManager'
-           , 'CollectionManager', 'WindowManager', 'HostManager'
-           , 'ContentFrame']
+__all__ = [
+    "MediaFile",
+    "MediaFolder",
+    "MediaManager",
+    "TreeviewManager",
+    "GridManager",
+    "ImageManager",
+    "MultiSlideshow",
+    "DBManager",
+    "CollectionManager",
+    "WindowManager",
+    "HostManager",
+    "ContentFrame",
+]
