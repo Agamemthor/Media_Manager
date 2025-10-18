@@ -50,7 +50,7 @@ class GridCell:
 
     def create_treeview_cell(self):
         """Create a treeview cell."""
-        self.treeview = TreeviewManager(self.media_manager, self.frame)
+        self.treeview = TreeviewManager(self, self.media_manager, self.frame)
 
     def refresh_treeview(self):
         """Refresh the treeview."""
@@ -122,20 +122,29 @@ class GridManager:
         """Load grid configuration."""
         uniform_row = self.grid_config.get("uniform_row", "")
         uniform_col = self.grid_config.get("uniform_col", "")
+        row_weights = self.grid_config.get("row_weights", [1, 0])
+        column_weights = self.grid_config.get("column_weights", [1, 3])
+        row_minsize = self.grid_config.get("row_minsize", [0, 0])
+        col_minsize = self.grid_config.get("col_minsize", [0, 0])
+
         for i in range(self.grid_config.get("grid_rows", 2)):
-            weight = self.grid_config.get("row_weights", [1, 0])[i]
+            weight = row_weights[i] if i < len(row_weights) else 1
+            minsize = row_minsize[i] if i < len(row_minsize) else 0
             self.main_window.grid_rowconfigure(
                 i,
                 weight=weight,
-                minsize=self.grid_config.get("row_minsize", 24),
+                minsize=minsize,
                 uniform=uniform_row,
                 pad=self.grid_config.get("row_pad", 0)
             )
+
         for i in range(self.grid_config.get("grid_columns", 2)):
-            weight = self.grid_config.get("column_weights", [1, 3])[i]
+            weight = column_weights[i] if i < len(column_weights) else 1
+            minsize = col_minsize[i] if i < len(col_minsize) else 0
             self.main_window.grid_columnconfigure(
                 i,
                 weight=weight,
+                minsize=minsize,
                 uniform=uniform_col,
                 pad=self.grid_config.get("column_pad", 0)
             )

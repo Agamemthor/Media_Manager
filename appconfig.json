@@ -9,9 +9,9 @@
     "fullscreen": false,
     "always_on_top": false,
     "exit_on_escape": false,
-    "fullscreen_on_f11": true
+    "fullscreen_on_f11": true,
+    "bg": "black"
   },
-
   "window_manager": {
     "custom_title_bar": {
       "bg": "#333333",
@@ -46,13 +46,16 @@
       }
     }
   },
-
   "grid": {
     "grid_rows": 2,
     "grid_columns": 2,
+    "row_weights": [1, 0],
+    "column_weights": [0, 1],
+    "row_minsize": [24, 0],
+    "col_minsize": [100, 200],
     "uniform_row": "",
     "uniform_col": "",
-    "fix_dimensions_by_weight": false,
+    "fix_dimensions_by_weight": true,
     "cell_configs": [
       {
         "type": "media_tree",
@@ -69,9 +72,15 @@
         "padx": 0,
         "pady": 0,
         "grid_propagate": false,
-        "row_weight": 1,
-        "column_weight": 1,
-        "row_minsize": 24
+        "treeview": {
+          "columns": ["type", "size", "path"],
+          "column_configs": {
+            "#0": {"width": 300, "stretch": true, "heading": "Name"},
+            "type": {"width": 100, "anchor": "w", "heading": "Type"},
+            "size": {"width": 80, "anchor": "e", "heading": "Size (KB)"},
+            "path": {"width": 200, "stretch": true, "heading": "Path"}
+          }
+        }
       },
       {
         "type": "content_frame",
@@ -83,14 +92,30 @@
         "linked_content_frame_name": "",
         "bd": 0,
         "highlightthickness": 0,
-        "bg": "black",
+        "bg": "azure3",
         "sticky": "nsew",
         "padx": 0,
         "pady": 0,
         "grid_propagate": false,
-        "row_weight": 1,
-        "column_weight": 3,
-        "row_minsize": 24
+        "image_manager": {
+          "placeholder_text": "Select an image file to preview",
+          "placeholder_bg": "black",
+          "placeholder_fg": "white",
+          "placeholder_borderwidth": 0,
+          "placeholder_relief": "flat",
+          "placeholder_anchor": "center",
+          "placeholder_place_relx": 0,
+          "placeholder_place_rely": 0,
+          "placeholder_place_anchor": "center",
+          "placeholder_pack_fill": "both",
+          "placeholder_pack_expand": true,
+          "placeholder_pack_padx": 0,
+          "placeholder_pack_pady": 0,
+          "min_display_width": 100,
+          "min_display_height": 100,
+          "display_width_offset": 5,
+          "display_height_offset": 5
+        }
       },
       {
         "type": "statusbar",
@@ -102,14 +127,11 @@
         "linked_content_frame_name": "",
         "bd": 0,
         "highlightthickness": 0,
-        "bg": "black",
+        "bg": "azure3",
         "sticky": "nsew",
         "padx": 0,
         "pady": 0,
         "grid_propagate": false,
-        "row_weight": 0,
-        "column_weight": 1,
-        "row_minsize": 24,
         "status_text": "Ready",
         "status_anchor": "w",
         "status_relief": "sunken",
@@ -119,7 +141,6 @@
       }
     ]
   },
-
   "slideshow": {
     "delay": 8000,
     "grip_size": 7

@@ -13,12 +13,14 @@ class WindowManager:
         else:
             root = tk.Tk()
         self.root = root
+        self.root.config(bg=window_config.get('bg', 'grey'))
         self.window_config = window_config
         self.window_manager_config = window_manager_config or {}
         self.has_resize_grips = False
         self.fullscreen = self.window_config.get("fullscreen", False)
         self.set_window_config(window_config)
         self._drag_data = {"x": 0, "y": 0}
+        self.root.update_idletasks()
 
     def _toggle_fullscreen_event(self, event=None):
         """Toggle fullscreen mode."""

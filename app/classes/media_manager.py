@@ -204,7 +204,7 @@ class MediaManager:
             "show_custom_titlebar": False,
             "title": "Slideshow",
             "show_menubar": False,
-            "fullscreen": True,
+            "fullscreen": False,
             "always_on_top": False,
             "exit_on_escape": True,
             "fullscreen_on_f11": True,

@@ -12,7 +12,8 @@ from .content_frame import ContentFrame
 logger = logging.getLogger(__name__)
 
 class TreeviewManager:
-    def __init__(self, media_manager, frame):
+    def __init__(self, grid_cell, media_manager, frame):
+        self.grid_cell = grid_cell
         self.media_manager = media_manager
         self.frame = frame
         self.item_to_object: Dict[str, Any] = {}
@@ -29,15 +30,20 @@ class TreeviewManager:
 
     def _configure_columns(self):
         """Configure the treeview columns."""
-        self.tree["columns"] = ("type", "size", "path")
-        self.tree.column("#0", width=300, stretch=True)
-        self.tree.column("type", width=100, anchor="w")
-        self.tree.column("size", width=80, anchor="e")
-        self.tree.column("path", width=200, stretch=True)
-        self.tree.heading("#0", text="Name")
-        self.tree.heading("type", text="Type")
-        self.tree.heading("size", text="Size (KB)")
-        self.tree.heading("path", text="Path")
+        config = self.grid_cell.cell_config.get("treeview", {})
+        self.tree["columns"] = config.get("columns", ["type", "size", "path"])
+
+        for col_id, col_cfg in config.get("column_configs", {}).items():
+            self.tree.column(
+                col_id,
+                width=col_cfg.get("width", 100),
+                stretch=col_cfg.get("stretch", False),
+                anchor=col_cfg.get("anchor", "w")
+            )
+            self.tree.heading(
+                col_id,
+                text=col_cfg.get("heading", col_id)
+        )
 
     def bind_events(self):
         """Bind all necessary events for the treeview."""

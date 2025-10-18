@@ -23,18 +23,33 @@ class ImageManager:
 
     def _create_placeholder(self):
         """Create a placeholder label."""
+        config = {}
+        if hasattr(self.frame, "grid_cell"):
+            config = self.frame.grid_cell.cell_config.get("image_manager", {})
+
         if self.current_image_label:
             self.current_image_label.destroy()
+
         self.current_image_label = ttk.Label(
             self.frame,
-            text="Select an image file to preview",
-            borderwidth=0,
-            relief="flat",
-            anchor="center",
-            background="black",
+            text=config.get("placeholder_text", "Select an image file to preview"),
+            borderwidth=config.get("placeholder_borderwidth", 0),
+            relief=config.get("placeholder_relief", "flat"),
+            anchor=config.get("placeholder_anchor", "center"),
+            background=config.get("placeholder_bg", "black"),
+            foreground=config.get("placeholder_fg", "white")
         )
-        self.current_image_label.place(relx=0, rely=0, anchor="center")
-        self.current_image_label.pack(fill="both", expand=True, padx=0, pady=0)
+        self.current_image_label.place(
+            relx=config.get("placeholder_place_relx", 0),
+            rely=config.get("placeholder_place_rely", 0),
+            anchor=config.get("placeholder_place_anchor", "center")
+        )
+        self.current_image_label.pack(
+            fill=config.get("placeholder_pack_fill", "both"),
+            expand=config.get("placeholder_pack_expand", True),
+            padx=config.get("placeholder_pack_padx", 0),
+            pady=config.get("placeholder_pack_pady", 0)
+        )
 
     def preload_image(self, file_path: str):
         """Preload an image."""
@@ -56,11 +71,17 @@ class ImageManager:
 
     def _get_scaled_image(self):
         """Get a scaled image."""
+        config = {}
+        if hasattr(self.frame, "grid_cell"):
+            config = self.frame.grid_cell.cell_config.get("image_manager", {})
+
         frame_width = self.frame.winfo_width()
         frame_height = self.frame.winfo_height()
-        min_width, min_height = 100, 100
-        display_width = max(frame_width - 5, min_width)
-        display_height = max(frame_height - 5, min_height)
+        min_width = config.get("min_display_width", 100)
+        min_height = config.get("min_display_height", 100)
+        display_width = max(frame_width - config.get("display_width_offset", 5), min_width)
+        display_height = max(frame_height - config.get("display_height_offset", 5), min_height)
+
         width, height = self.current_pil_image.size
         ratio = min(display_width / width, display_height / height)
         new_size = (int(width * ratio), int(height * ratio))

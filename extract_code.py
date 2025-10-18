@@ -19,6 +19,7 @@ def generate_code():
         for file_path in input_files:
             with open(file_path, 'r') as file:
                 content = file.read()
+                outfile.write(f"#{full_path}\n")
                 outfile.write(content)
                 outfile.write("\n\n")
 
