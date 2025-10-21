@@ -1,0 +1,194 @@
+{
+  "window": {
+    "height": 600,
+    "width": 800,
+    "borderless": false,
+    "show_custom_titlebar": false,
+    "title": "Media Manager",
+    "show_menubar": false,
+    "fullscreen": true,
+    "always_on_top": false,
+    "exit_on_escape": false,
+    "fullscreen_on_f11": true,
+    "bg": "black"
+  },
+  "window_manager": {
+    "custom_title_bar": {
+      "bg": "#333333",
+      "relief": "raised",
+      "bd": 0,
+      "title_label": {
+        "bg": "#333333",
+        "fg": "white",
+        "anchor": "w",
+        "padx": 10
+      },
+      "close_button": {
+        "text": "✕",
+        "bg": "#333333",
+        "fg": "white",
+        "bd": 0,
+        "padx": 10,
+        "pady": 2
+      }
+    },
+    "resize_grips": {
+      "bg": "#333333",
+      "width": 7,
+      "height": 7,
+      "bottom_right_cursor": "bottom_right_corner",
+      "bottom_left_cursor": "bottom_left_corner"
+    },
+    "menu_items": {
+      "file_menu": {
+        "label": "File",
+        "exit_label": "Exit"
+      }
+    }
+  },
+  "custom_grid": {
+    "cell_configs": [
+      {
+        "type": "grid",
+        "grid_rows": 2,
+        "grid_columns": 4,
+        "row_weights": [1, 1],
+        "column_weights": [1, 1, 1, 1],
+        "row_minsize": [100, 100],
+        "col_minsize": [100, 100, 100, 100],
+        "uniform_row": "row",
+        "uniform_col": "column",
+        "pack": {
+          "fill": "both",
+          "expand": true           
+        },
+        "cell_configs": [
+          {
+            "type": "slideshow",
+            "name": "slideshow_1",
+            "row": 0,
+            "column": 0,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          },
+          {
+            "type": "slideshow",
+            "name": "slideshow_2",
+            "row": 0,
+            "column": 1,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          },
+          {
+            "type": "slideshow",
+            "name": "slideshow_3",
+            "row": 0,
+            "column": 2,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          },
+          {
+            "type": "slideshow",
+            "name": "slideshow_4",
+            "row": 0,
+            "column": 3,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          },
+          {
+            "type": "slideshow",
+            "name": "slideshow_5",
+            "row": 1,
+            "column": 0,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          },
+          {
+            "type": "slideshow",
+            "name": "slideshow_6",
+            "row": 1,
+            "column": 1,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          },
+          {
+            "type": "slideshow",
+            "name": "slideshow_7",
+            "row": 1,
+            "column": 2,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          },
+          {
+            "type": "slideshow",
+            "name": "slideshow_8",
+            "row": 1,
+            "column": 3,
+            "rowspan": 1,
+            "columnspan": 1,
+            "bd": 0,
+            "highlightthickness": 0,
+            "bg": "black",
+            "sticky": "nsew",
+            "padx": 2,
+            "pady": 2,
+            "grid_propagate": false
+          }
+        ]
+      }
+    ] 
+  },
+  "slideshow": {
+    "delay": 8000,
+    "grip_size": 7
+  }
+}

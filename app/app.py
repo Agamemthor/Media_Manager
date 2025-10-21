@@ -17,7 +17,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Load app configuration from JSON
-with open("appconfig.json", "r") as f:
+with open("configs/appconfig_1t1cs.json", "r") as f:
     app_config = json.load(f)
 
 class MediaManagerApp:
@@ -40,7 +40,7 @@ class MediaManagerApp:
         window_manager_config = app_config.get("window_manager", {})
 
         # Grid configuration from appconfig.json
-        grid_config = app_config["grid"]
+        grid_config = app_config["custom_grid"]
 
         # Initialize MediaManager
         self.media_manager = MediaManager(conn_config, window_config, grid_config, window_manager_config=window_manager_config)

@@ -24,8 +24,8 @@ class ImageManager:
     def _create_placeholder(self):
         """Create a placeholder label."""
         config = {}
-        if hasattr(self.frame, "grid_cell"):
-            config = self.frame.grid_cell.cell_config.get("image_manager", {})
+        if hasattr(self.frame, "window_component"):
+            config = self.frame.window_component.cell_config.get("image_manager", {})
 
         if self.current_image_label:
             self.current_image_label.destroy()
@@ -72,8 +72,8 @@ class ImageManager:
     def _get_scaled_image(self):
         """Get a scaled image."""
         config = {}
-        if hasattr(self.frame, "grid_cell"):
-            config = self.frame.grid_cell.cell_config.get("image_manager", {})
+        if hasattr(self.frame, "window_component"):
+            config = self.frame.window_component.cell_config.get("image_manager", {})
 
         frame_width = self.frame.winfo_width()
         frame_height = self.frame.winfo_height()

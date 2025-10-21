@@ -1,0 +1,261 @@
+{
+  "window": {
+    "height": 600,
+    "width": 800,
+    "borderless": false,
+    "show_custom_titlebar": false,
+    "title": "Media Manager",
+    "show_menubar": true,
+    "fullscreen": false,
+    "always_on_top": false,
+    "exit_on_escape": false,
+    "fullscreen_on_f11": true,
+    "bg": "black"
+  },
+  "window_manager": {
+    "custom_title_bar": {
+      "bg": "#333333",
+      "relief": "raised",
+      "bd": 0,
+      "title_label": {
+        "bg": "#333333",
+        "fg": "white",
+        "anchor": "w",
+        "padx": 10
+      },
+      "close_button": {
+        "text": "✕",
+        "bg": "#333333",
+        "fg": "white",
+        "bd": 0,
+        "padx": 10,
+        "pady": 2
+      }
+    },
+    "resize_grips": {
+      "bg": "#333333",
+      "width": 7,
+      "height": 7,
+      "bottom_right_cursor": "bottom_right_corner",
+      "bottom_left_cursor": "bottom_left_corner"
+    },
+    "menu_items": {
+      "file_menu": {
+        "label": "File",
+        "exit_label": "Exit"
+      }
+    }
+  },
+  "custom_grid": {
+    "cell_configs": [
+      {
+        "type": "paned_window",
+        "name": "paned_window_1",
+        "paned_window_orientation": "vertical",
+        "pack": {
+          "fill": "both",
+          "expand": true           
+        },
+        "cell_configs": [          
+          {
+            "type": "paned_window",
+            "name": "paned_window_2",
+            "paned_window_orientation": "horizontal",
+            "weight": 1,
+            "pack": {
+              "fill": "both",
+              "expand": true           
+            },
+            "cell_configs": [
+              {
+                "type": "media_tree",
+                "name": "media_tree_1",
+                "row": 0,
+                "column": 0,
+                "rowspan": 1,
+                "columnspan": 1,
+                "linked_content_frame_name": "content_frame_1",
+                "in_panedwindow": true,
+                "bd": 0,
+                "highlightthickness": 0,
+                "bg": "black",
+                "sticky": "nsew",
+                "padx": 0,
+                "pady": 0,
+                "grid_propagate": false,
+                "pack": {
+                  "fill": "both",
+                  "expand": true           
+                },
+                "treeview": {
+                  "columns": ["type", "size", "path"],
+                  "column_configs": {
+                    "#0": {"width": 300, "stretch": true, "heading": "Name"},
+                    "type": {"width": 100, "anchor": "w", "heading": "Type"},
+                    "size": {"width": 80, "anchor": "e", "heading": "Size (KB)"},
+                    "path": {"width": 200, "stretch": true, "heading": "Path"}
+                  }
+                }
+              },
+              {
+                "type": "content_frame",
+                "name": "content_frame_1",
+                "row": 0,
+                "column": 1,
+                "rowspan": 1,
+                "columnspan": 1,
+                "linked_content_frame_name": "",
+                "in_panedwindow": true,
+                "bd": 0,
+                "highlightthickness": 0,
+                "bg": "azure3",
+                "sticky": "nsew",
+                "padx": 0,
+                "pady": 0,
+                "grid_propagate": false,
+                "pack": {
+                  "fill": "both",
+                  "expand": true           
+                },
+                "image_manager": {
+                  "placeholder_text": "Select an image file to preview",
+                  "placeholder_bg": "black",
+                  "placeholder_fg": "white",
+                  "placeholder_borderwidth": 0,
+                  "placeholder_relief": "flat",
+                  "placeholder_anchor": "center",
+                  "placeholder_place_relx": 0,
+                  "placeholder_place_rely": 0,
+                  "placeholder_place_anchor": "center",
+                  "placeholder_pack_fill": "both",
+                  "placeholder_pack_expand": true,
+                  "placeholder_pack_padx": 0,
+                  "placeholder_pack_pady": 0,
+                  "min_display_width": 100,
+                  "min_display_height": 100,
+                  "display_width_offset": 5,
+                  "display_height_offset": 5
+                }
+              }
+            ]
+          },
+          {
+            "type": "paned_window",
+            "name": "paned_window_3",
+            "paned_window_orientation": "horizontal",
+            "weight": 1,
+            "pack": {
+              "fill": "both",
+              "expand": true           
+            },
+            "cell_configs": [
+              {
+                "type": "media_tree",
+                "name": "media_tree_2",
+                "row": 0,
+                "column": 0,
+                "rowspan": 1,
+                "columnspan": 1,
+                "linked_content_frame_name": "content_frame_2",
+                "in_panedwindow": true,
+                "bd": 0,
+                "highlightthickness": 0,
+                "bg": "black",
+                "sticky": "nsew",
+                "padx": 0,
+                "pady": 0,
+                "grid_propagate": false,
+                "pack": {
+                  "fill": "both",
+                  "expand": true           
+                },
+                "treeview": {
+                  "columns": ["type", "size", "path"],
+                  "column_configs": {
+                    "#0": {"width": 300, "stretch": true, "heading": "Name"},
+                    "type": {"width": 100, "anchor": "w", "heading": "Type"},
+                    "size": {"width": 80, "anchor": "e", "heading": "Size (KB)"},
+                    "path": {"width": 200, "stretch": true, "heading": "Path"}
+                  }
+                }
+              },
+              {
+                "type": "content_frame",
+                "name": "content_frame_2",
+                "row": 0,
+                "column": 1,
+                "rowspan": 1,
+                "columnspan": 1,
+                "linked_content_frame_name": "",
+                "in_panedwindow": true,
+                "bd": 0,
+                "highlightthickness": 0,
+                "bg": "azure3",
+                "sticky": "nsew",
+                "padx": 0,
+                "pady": 0,
+                "grid_propagate": false,
+                "pack": {
+                  "fill": "both",
+                  "expand": true           
+                },
+                "image_manager": {
+                  "placeholder_text": "Select an image file to preview",
+                  "placeholder_bg": "black",
+                  "placeholder_fg": "white",
+                  "placeholder_borderwidth": 0,
+                  "placeholder_relief": "flat",
+                  "placeholder_anchor": "center",
+                  "placeholder_place_relx": 0,
+                  "placeholder_place_rely": 0,
+                  "placeholder_place_anchor": "center",
+                  "placeholder_pack_fill": "both",
+                  "placeholder_pack_expand": true,
+                  "placeholder_pack_padx": 0,
+                  "placeholder_pack_pady": 0,
+                  "min_display_width": 100,
+                  "min_display_height": 100,
+                  "display_width_offset": 5,
+                  "display_height_offset": 5
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {   
+        "type": "statusbar",
+        "name": "statusbar_1",
+        "row": 2,
+        "column": 0,
+        "rowspan": 1,
+        "columnspan": 2,
+        "linked_content_frame_name": "",
+        "in_panedwindow": false,
+        "bd": 1,
+        "highlightthickness": 0,
+        "bg": "azure3",
+        "sticky": "nsew",
+        "padx": 0,
+        "pady": 0,
+        "grid_propagate": false,
+        "status_text": "Ready",
+        "status_anchor": "w",
+        "status_relief": "sunken",
+        "status_fill": "x",
+        "status_padx": 5,
+        "status_pady": 2,
+        "pack": {
+          "expand": false,
+          "fill": "x",
+          "padx": 5,           
+          "pady": 5
+        }
+      }
+    ] 
+  },
+  "slideshow": {
+    "delay": 8000,
+    "grip_size": 7
+  }
+}

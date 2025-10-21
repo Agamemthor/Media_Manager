@@ -12,8 +12,8 @@ from .content_frame import ContentFrame
 logger = logging.getLogger(__name__)
 
 class TreeviewManager:
-    def __init__(self, grid_cell, media_manager, frame):
-        self.grid_cell = grid_cell
+    def __init__(self, window_component, media_manager, frame):
+        self.window_component = window_component
         self.media_manager = media_manager
         self.frame = frame
         self.item_to_object: Dict[str, Any] = {}
@@ -30,7 +30,7 @@ class TreeviewManager:
 
     def _configure_columns(self):
         """Configure the treeview columns."""
-        config = self.grid_cell.cell_config.get("treeview", {})
+        config = self.window_component.cell_config.get("treeview", {})
         self.tree["columns"] = config.get("columns", ["type", "size", "path"])
 
         for col_id, col_cfg in config.get("column_configs", {}).items():

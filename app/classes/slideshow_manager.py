@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 class SlideshowCell:
     def __init__(self, content_frame: ContentFrame):
-        self.slideshow_cell_id = content_frame.grid_cell.name
+        self.slideshow_cell_id = content_frame.window_component.name
         self.media_list = []
         self.content_frame = content_frame
         self.image_index = 0

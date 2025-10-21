@@ -1,10 +1,11 @@
+import json
 from dataclasses import dataclass, field
 from tkinter import messagebox, filedialog
 from typing import List, Dict, Optional, Set, Tuple
 import logging
 from .media_folder import MediaFolder
 from .media_file import MediaFile
-from .grid_manager import GridManager
+from .window_component_manager import WindowComponentManager
 from .window_manager import WindowManager
 from .host_manager import HostManager
 from .db_manager import DBManager
@@ -27,7 +28,7 @@ class MediaManager:
         media_files: List[MediaFile] = None,
         parent_manager: Optional["MediaManager"] = None,
     ):
-        self.gridmanager = None
+        self.WindowComponentManager = None
         self.parent_manager = parent_manager
         self.sub_media_managers: List["MediaManager"] = []
         self.host_manager = HostManager(set_status=self.set_status)
@@ -38,7 +39,7 @@ class MediaManager:
 
         root = self.window_manager.get_root()
         self.root = root
-        self.grid_manager = GridManager(self, root, grid_config)
+        self.grid_manager = WindowComponentManager(self, root, grid_config)
         self.media_folder_by_id: Dict[int, MediaFolder]
         self.media_folder_by_path: Dict[str, MediaFolder]
 
@@ -119,8 +120,8 @@ class MediaManager:
 
     def set_status(self, status_text: str):
         """Set the status text."""
-        if self.gridmanager:
-            self.gridmanager.set_status(status_text)
+        if self.WindowComponentManager:
+            self.WindowComponentManager.set_status(status_text)
 
     def get_folder_by_id(self, folder_id: int) -> Optional[MediaFolder]:
         """Get a folder by its ID."""
@@ -197,100 +198,14 @@ class MediaManager:
         self, media_folders: List[MediaFolder], media_files: List[MediaFile]
     ):
         """Start a new MediaManager instance with slideshow configuration for the given media files."""
-        window_config = {
-            "height": 600,
-            "width": 800,
-            "borderless": False,
-            "show_custom_titlebar": False,
-            "title": "Slideshow",
-            "show_menubar": False,
-            "fullscreen": False,
-            "always_on_top": False,
-            "exit_on_escape": True,
-            "fullscreen_on_f11": True,
-        }
-        grid_config = {
-            "grid_rows": 2,
-            "grid_columns": 4,
-            "row_weights": [1, 1],
-            "column_weights": [1, 1, 1, 1],
-            "uniform_row": "row",
-            "uniform_col": "column",
-            "cell_configs": [
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_1",
-                    "row": 0,
-                    "column": 0,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                },
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_2",
-                    "row": 0,
-                    "column": 1,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                },
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_3",
-                    "row": 0,
-                    "column": 2,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                },
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_4",
-                    "row": 0,
-                    "column": 3,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                },
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_5",
-                    "row": 1,
-                    "column": 0,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                },
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_6",
-                    "row": 1,
-                    "column": 1,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                },
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_7",
-                    "row": 1,
-                    "column": 2,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                },
-                {
-                    "type": "slideshow",
-                    "name": "slideshow_8",
-                    "row": 1,
-                    "column": 3,
-                    "rowspan": 1,
-                    "columnspan": 1,
-                    "linked_content_frame_name": ""
-                }
-            ]
-        }
+        # Load slideshow-specific configuration
+        with open("configs/slideshow_2x4.json", "r") as f:
+            slideshow_config = json.load(f)
+
+        window_config = slideshow_config["window"]
+
+        grid_config = slideshow_config["custom_grid"]
+
         self.start_new_media_manager(
             window_config,
             grid_config,
@@ -315,3 +230,4 @@ class MediaManager:
             media_files=media_files,
         )
         self.sub_media_managers.append(media_manager)
+

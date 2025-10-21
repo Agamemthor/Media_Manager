@@ -1,8 +1,10 @@
 ### Media Manager
 The app consists of a local user interface in python, and a postgresql database which needs to be run with docker-compose. 
+Disclaimer: please don't consider this a profesionall app or a guidance on best practices.
 
 #### Project status: 
 This project is currently in development - ugly stuff to be honest, but it works haha! No guarantees though. Vibe coding is a blessing and a curse.
+Update: I took alot of shortcuts with genAI so there's a lot of rubbish to cleanup. 
 
 #### Project goals
 To develop an app which manages media on disk and creates a configurable multimedia slideshow thingy app. Also gain experience with python, postgresql and docker-compose. 

@@ -10,10 +10,10 @@ logger = logging.getLogger(__name__)
 class ContentFrame:
     """Manages the content frame, responding to selections such as from the treeview."""
 
-    def __init__(self, media_manager, grid_cell):
-        self.grid_cell = grid_cell
+    def __init__(self, media_manager, window_component):
+        self.window_component = window_component
         self.media_manager = media_manager
-        self.image_manager = ImageManager(self.grid_cell.frame)
+        self.image_manager = ImageManager(self.window_component.frame)
 
     def display_media(self, media):
         """Display a MediaFile or MediaFolder in the content frame."""
