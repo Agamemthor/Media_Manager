@@ -21,8 +21,9 @@ class HostManager:
             folders_data = []
             files_data = []
             folder_id_counter = min_folder_id + 1
+            file_id_counter = min_file_id + 1
             folder_id_map = {}
-            processed_files = min_file_id + 1
+            processed_files = 0
             file_count = 0
 
             for root, dirs, files in os.walk(folder_path):
@@ -46,13 +47,13 @@ class HostManager:
                         size = os.path.getsize(full_path) // 1024
                         files_data.append(
                             (
+                                file_id_counter,
                                 folder_id_map[root],
                                 file,
-                                ext,
-                                size,
-                                root,
-                            )
+                                size
+                            )                            
                         )
+                        file_id_counter+=1
 
             self.set_status(f"Scanned {processed_files} files, found {file_count} media files.")
             return folders_data, files_data

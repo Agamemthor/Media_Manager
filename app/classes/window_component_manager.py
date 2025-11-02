@@ -19,18 +19,18 @@ class WindowComponent:
         parent
     ):
         self.frame = frame
-        self.frame.name = cell_config.get("name", "")
-        self.name = cell_config.get("name", "")
-        self.type = cell_config.get("type", "")
         self.media_manager = media_manager
-        self.statusbar = None
-        self.linked_content_frame_name = cell_config.get("linked_content_frame_name", "")
         self.grid_manager = grid_manager
         self.cell_config = cell_config
         self.parent = parent
+
+        self.frame.name = cell_config.get("name", "")
+        self.name = cell_config.get("name", "")
+        self.type = cell_config.get("type", "")
+        self.linked_content_frame_name = cell_config.get("linked_content_frame_name", "")
         
         if self.type == "statusbar":
-            self.statusbar = self.create_statusbar_cell()
+            self.create_statusbar_cell()
         if self.type == "content_frame":
             self.create_content_frame_cell()
         if self.type == "media_tree":
@@ -189,7 +189,7 @@ class WindowComponentManager:
                 elif parent and isinstance(parent, WindowComponent): 
                     root = parent.frame
                 else:
-                    raise 'bleh'
+                    raise ValueError("this should not happen!")
 
                 frame = self.get_frame(root, cell_config)
                 window_component = WindowComponent(
@@ -211,7 +211,7 @@ class WindowComponentManager:
                     padx = pack_config.get('padx', 0),
                     pady = pack_config.get('pady', 0)
                     )
-                
+               
             #check for child_configs and process them first before proceeding
             child_cell_config = cell_config.get("cell_configs", [])
             if child_cell_config:
@@ -224,8 +224,8 @@ class WindowComponentManager:
     def get_paned_window(self, cell_config, parent):
         orientation = cell_config.get('paned_window_orientation','horizontal')
         paned_window = ttk.Panedwindow(parent, orient=orientation)
-        return paned_window   
-
+        return paned_window
+      
     def get_frame(self,root,cell_config: Dict) -> tk.Frame:
         """Get a frame positioned at the specified grid location."""
         frame = tk.Frame(
@@ -233,10 +233,9 @@ class WindowComponentManager:
             bd=cell_config.get("bd", 0),
             highlightthickness=cell_config.get("highlightthickness", 0),
             bg=cell_config.get("bg", "black"),
-        )  
-
+        )
         return frame
-       
+    
     def get_window_component_by_name(self, name: str) -> Optional["WindowComponent"]:
         """Return the WindowComponent with the given name, or None if not found."""
         for cell in self.window_components:

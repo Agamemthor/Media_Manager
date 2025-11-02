@@ -1,3 +1,8 @@
+Collections:
+- when adding media to a collection, the folder structure is translated into tags
+- initially, all folders in that path will have it's own tags
+- ...
+
 refactoring
 - Remove any overly broad exception handling. Add exception handling on areas which are particularly vulnerable. Make all exception handling consistent.
 - Remove any redundant comments. Have comments be brief. Docstrings should be consistently applied, and ideally only one line without describing the input/output
@@ -16,3 +21,15 @@ later?
 - Use Context Managers for Resources Action: Use with statements for database connections and file operations.
 - G. Error Handling for File Operations Action: Add checks for file existence and permissions before operations.
 - Optimize Database Queries Action: Use batch inserts and indexes for large datasets. Consider async database operations if performance is critical.
+
+
+this is my current video_manager.py and associated config, before i let AI decide its fate with the following requirements:
+- have the volume control be right of the time label. 
+- if you click on the icon-label of the volume control, it should toggle between mute and unmute. ideally there is also another unicode character for the muted icon.
+- initialize the video player muted
+- pressing the stop button the video should unload the video and revert to placeholder
+- add a double-click event on the video frame with a placeholder function
+- move further hardcoded configurations, such as the canvas bg, to the config
+- implement a style and use it consistently in the file
+- have that style be configurable like the other video configurations
+

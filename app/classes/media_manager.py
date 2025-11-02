@@ -28,7 +28,7 @@ class MediaManager:
         media_files: List[MediaFile] = None,
         parent_manager: Optional["MediaManager"] = None,
     ):
-        self.WindowComponentManager = None
+        self.window_component_manager = None
         self.parent_manager = parent_manager
         self.sub_media_managers: List["MediaManager"] = []
         self.host_manager = HostManager(set_status=self.set_status)
@@ -39,9 +39,9 @@ class MediaManager:
 
         root = self.window_manager.get_root()
         self.root = root
-        self.grid_manager = WindowComponentManager(self, root, grid_config)
-        self.media_folder_by_id: Dict[int, MediaFolder]
-        self.media_folder_by_path: Dict[str, MediaFolder]
+        self.window_component_manager = WindowComponentManager(self, root, grid_config)
+        self.media_folder_by_id: Dict[int, MediaFolder] = {}
+        self.media_folder_by_path: Dict[str, MediaFolder] = {}
 
         if media_files and media_folders:
             self.media_files = media_files
@@ -53,12 +53,12 @@ class MediaManager:
             self.media_files: List[MediaFile] = []
             self.media_folders: List[MediaFolder] = []
 
-            self.grid_manager.set_status("Loading data...")
+            self.window_component_manager.set_status("Loading data...")
             self.load_data()
 
-            self.grid_manager.set_status("Creating grid...")
-            self.grid_manager.create_content()
-            self.grid_manager.set_status("Ready.")
+            self.window_component_manager.set_status("Creating grid...")
+            self.window_component_manager.create_content()
+            self.window_component_manager.set_status("Ready.")
 
     def load_data(self):
         """Load media data from the database or scan for new data if none exists."""
@@ -103,33 +103,33 @@ class MediaManager:
                 parent_folder_id=row[2],
             )
             folders.append(folder)
+            self.media_folder_by_id[row[0]] = folder
         self.media_folders.extend(folders)
         files = []
         for row in files_data:
             file = MediaFile(
-                folder_id=row[0],
-                file_name=row[1],
-                file_extension=row[2],
-                file_size_kb=row[3],
-                folder_path=row[4],
+                file_id= row[0],
+                media_folder=self.get_folder_by_id(row[1]),
+                file_name=row[2],
+                file_size_kb=row[3]
             )
-            file._media_type = self.extension_to_type.get(file.file_extension.lower(), "unknown")
+            file.media_type = self.extension_to_type.get(file.file_extension, "unknown")
             files.append(file)
         self.media_files.extend(files)
         self.update_media_data()
 
     def set_status(self, status_text: str):
         """Set the status text."""
-        if self.WindowComponentManager:
-            self.WindowComponentManager.set_status(status_text)
+        if self.window_component_manager:
+            self.window_component_manager.set_status(status_text)
 
     def get_folder_by_id(self, folder_id: int) -> Optional[MediaFolder]:
         """Get a folder by its ID."""
-        return self.folder_by_id.get(folder_id)
+        return self.media_folder_by_id.get(folder_id)
 
     def get_folder_by_path(self, folder_path: str) -> Optional[MediaFolder]:
         """Get a folder by its path."""
-        return self.folder_by_path.get(folder_path)
+        return self.media_folder_by_path.get(folder_path)
 
     def get_root_folders(self) -> List[MediaFolder]:
         """Get all root folders (those with no parent)."""
@@ -153,18 +153,20 @@ class MediaManager:
             folder._parent = None
             folder._files = []
             folder._subfolders = []
+            
         self.media_folder_by_id: Dict[int, MediaFolder] = {f.folder_id: f for f in self.media_folders}
         self.media_folder_by_path: Dict[str, MediaFolder] = {f.folder_path: f for f in self.media_folders}
+        
         for folder in self.media_folders:
             if folder.parent_folder_id:
                 parent = self.media_folder_by_id.get(folder.parent_folder_id)
                 if parent:
                     folder._parent = parent
                     parent._subfolders.append(folder)
+        
         for file in self.media_files:
-            folder = self.media_folder_by_id.get(file.folder_id)
-            if folder:
-                folder._files.append(file)
+            if file.media_folder:
+                file.media_folder._files.append(file)
 
     def delete_media_folder(self, folder: MediaFolder):
         """Delete a media folder and all its subfolders and files from the database and internal structures."""
@@ -182,10 +184,10 @@ class MediaManager:
 
             self.db_manager.delete_folders_and_files(folder_ids_to_delete)
             self.media_folders = [f for f in self.media_folders if f.folder_id not in folder_ids_to_delete]
-            self.media_files = [f for f in self.media_files if f.folder_id not in folder_ids_to_delete]
+            self.media_files = [f for f in self.media_files if f.media_folder.folder_id not in folder_ids_to_delete]
             self.update_media_data()
-            if self.grid_manager:
-                self.grid_manager.refresh_grids()
+            if self.window_component_manager:
+                self.window_component_manager.refresh_grids()
             self.db_manager.commit()
             self.set_status(f"Deleted folder '{folder.folder_path}'.")
         except Exception as e:
@@ -230,4 +232,4 @@ class MediaManager:
             media_files=media_files,
         )
         self.sub_media_managers.append(media_manager)
-
+        return media_manager

@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 class ImageManager:
     """Manages image display in the application."""
 
-    def __init__(self, frame: tk.Frame):
+    def __init__(self, frame: tk.Frame, content_frame = None):
         """Initialize the ImageManager with a frame to display images."""
         self.frame = frame
+        self.content_frame = content_frame
         self.current_image_label: Optional[ttk.Label] = None
         self.current_image_path: Optional[str] = None
         self.on_image_error: Optional[Callable] = None
@@ -51,6 +52,10 @@ class ImageManager:
             pady=config.get("placeholder_pack_pady", 0)
         )
 
+    def hide(self):
+        if self.frame:
+            self.current_image_label.pack_forget()
+
     def preload_image(self, file_path: str):
         """Preload an image."""
         if not os.path.exists(file_path):
@@ -85,16 +90,17 @@ class ImageManager:
         width, height = self.current_pil_image.size
         ratio = min(display_width / width, display_height / height)
         new_size = (int(width * ratio), int(height * ratio))
-        resized_image = self.current_pil_image.resize(new_size, Image.LANCZOS)
+        resized_image = self.current_pil_image.resize(new_size, Image.Resampling.LANCZOS)
         self.preloaded_image = ImageTk.PhotoImage(resized_image)
 
     def display_preloaded_image(self):
         """Display the preloaded image."""
         if not self.current_image_label:
             self.current_image_label = ttk.Label(self.frame)
-            self.current_image_label.pack(fill="both", expand=True)
+           
         self.current_image_label.configure(image=self.preloaded_image)
         self.current_image_label.image = self.preloaded_image
+        self.current_image_label.pack(fill="both", expand=True)
 
     def _on_frame_resize(self, event):
         """Handle frame resize events."""
@@ -107,11 +113,6 @@ class ImageManager:
         self._create_placeholder()
         self.current_image_path = None
         self.current_pil_image = None
-
-    def refresh(self):
-        """Refresh the current image."""
-        if self.current_image_path:
-            self.display_image(self.current_image_path)
 
     def set_error_handler(self, callback: Callable):
         """Set a callback for image loading errors."""

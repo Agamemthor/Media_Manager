@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   postgres:
     image: postgres:16
@@ -18,25 +17,23 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5
-
   postgres_dev:
     image: postgres:16
     container_name: media_manager_db_dev
     environment:
       POSTGRES_USER: youruser
       POSTGRES_PASSWORD: yourpassword
-      POSTGRES_DB: media_manager
+      POSTGRES_DB: media_manager_dev  # Changed database name
     volumes:
-      - postgres_data:/var/lib/postgresql/data_dev
+      - postgres_data_dev:/var/lib/postgresql/data  # Separate volume
       - ./sql:/docker-entrypoint-initdb.d
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U youruser -d media_manager"]
+      test: ["CMD-SHELL", "pg_isready -U youruser -d media_manager_dev"]  # Updated database name
       interval: 30s
       timeout: 5s
       retries: 5
-
   pgadmin:
     image: dpage/pgadmin4:9.8
     container_name: media_manager_pgadmin
@@ -47,12 +44,13 @@ services:
       - "5050:80"
     depends_on:
       postgres:
-        condition: service_healthy  # Wait for PostgreSQL to be ready
+        condition: service_healthy
+      postgres_dev:
+        condition: service_healthy  # Added dependency
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-      - ./pgadmin/servers.json:/pgadmin4/servers.json  # Mount servers.json to persist connections
-      - ./pgadmin/setup.py:/docker-entrypoint-initdb.d/setup.py  # Script to register the server
-
+      - ./pgadmin/servers.json:/pgadmin4/servers.json
 volumes:
   postgres_data:
+  postgres_data_dev:  # New volume for dev database
   pgadmin_data:

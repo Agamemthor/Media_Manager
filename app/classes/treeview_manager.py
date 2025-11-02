@@ -53,15 +53,12 @@ class TreeviewManager:
 
     def populate(self):
         """Populate the treeview using the MediaManager data."""
-        try:
-            for item in self.tree.get_children():
-                self.tree.delete(item)
-            self.item_to_object = {}
-            for folder in self.media_manager.get_root_folders():
-                self._add_folder_to_treeview("", folder)
-        except Exception as e:
-            logger.exception("Failed to populate treeview")
-            raise Exception(f"Failed to populate treeview: {e}")
+        for item in self.tree.get_children():
+            self.tree.delete(item)
+        self.item_to_object = {}
+        for folder in self.media_manager.get_root_folders():
+            self._add_folder_to_treeview("", folder)
+
 
     def _add_folder_to_treeview(self, parent_item_id: str, folder: MediaFolder) -> str:
         """Recursively add a folder and its contents to the treeview."""
@@ -82,8 +79,8 @@ class TreeviewManager:
                 text=file.file_name,
                 values=(
                     file.media_type,
-                    f"{file.file_size_kb:,}",
-                    file.folder_path,
+                    f"{file.file_size_kb}",
+                    file.media_folder.folder_path,
                 ),
                 tags=("file",),
             )

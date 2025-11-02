@@ -4,6 +4,7 @@ import logging
 from .media_file import MediaFile
 from .media_folder import MediaFolder
 from .image_manager import ImageManager
+from .video_manager import VideoManager
 
 logger = logging.getLogger(__name__)
 
@@ -14,22 +15,42 @@ class ContentFrame:
         self.window_component = window_component
         self.media_manager = media_manager
         self.image_manager = ImageManager(self.window_component.frame)
+        self.video_manager = None
+        self.current_media_id = -1
 
     def display_media(self, media):
         """Display a MediaFile or MediaFolder in the content frame."""
-        if isinstance(media, MediaFile):
-            if media.media_type == "image":
-                self.image_manager.preload_image(media.get_path())
-                self.image_manager.display_preloaded_image()
-            else:
-                logger.warning(f"Unsupported media type: {media.media_type}")
-                self.set_placeholder()
-        elif isinstance(media, MediaFolder):
-            logger.info(f"Displaying folder: {media.folder_path}")
-            self.set_placeholder()
+        if self.current_media_id == media.get_id():
+            return
         else:
-            self.set_placeholder()
-            logger.warning("Unsupported media type or object")
+            self.current_media_id = media.get_id()
+            if self.video_manager:
+                self.video_manager.hide()
+            if self.image_manager:
+                self.image_manager.hide()
+
+            if isinstance(media, MediaFile):
+                if media.media_type == "image":
+                    self.image_manager.preload_image(media.get_path())
+                    self.image_manager.display_preloaded_image()
+                    logger.info(f"Displaying image: {media.folder_path}")
+
+                elif media.media_type == "video":
+                    if not self.video_manager:
+                        self.video_manager = VideoManager(self.window_component.frame)
+                    self.video_manager.load_video(media.get_path())
+                    logger.info(f"Displaying video: {media.folder_path}")
+
+                else:
+                    logger.warning(f"Unsupported media type: {media.media_type}")
+                    self.set_placeholder()
+                    
+            elif isinstance(media, MediaFolder):
+                logger.info(f"Displaying folder: {media.folder_path}")
+                self.set_placeholder()
+            else:
+                self.set_placeholder()
+                logger.warning("Unsupported media type or object")
 
     def preload_media_file(self, media):
         """Preload a media file."""

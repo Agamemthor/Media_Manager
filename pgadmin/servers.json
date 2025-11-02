@@ -1,0 +1,22 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Media Manager (Production)",
+      "Group": "Servers",
+      "Host": "postgres",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "youruser",
+      "SSLMode": "prefer"
+    },
+    "2": {
+      "Name": "Media Manager (Dev)",
+      "Group": "Servers",
+      "Host": "postgres_dev",
+      "Port": 5432,
+      "MaintenanceDB": "postgres",
+      "Username": "youruser",
+      "SSLMode": "prefer"
+    }
+  }
+}

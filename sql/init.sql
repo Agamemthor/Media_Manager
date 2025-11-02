@@ -1,3 +1,5 @@
+-- sql/init.sql
+
 -- Create tables
 CREATE TABLE IF NOT EXISTS Media_Types (
     Media_Type_ID SERIAL PRIMARY KEY,
@@ -15,12 +17,10 @@ CREATE TABLE media_folders (
 
 -- Files table with foreign key to folders
 CREATE TABLE media_files (
-    media_file_id SERIAL PRIMARY KEY,
+    file_id SERIAL PRIMARY KEY,
     folder_id INTEGER REFERENCES media_folders(folder_id) ON DELETE CASCADE,
     file_name TEXT NOT NULL,
-    file_extension TEXT NOT NULL,
     file_size_kb INTEGER,
-    folder_path TEXT,
     UNIQUE (folder_id, file_name)
 );
 
@@ -28,17 +28,6 @@ CREATE TABLE IF NOT EXISTS Parameters (
     Parameter_Name VARCHAR(100) PRIMARY KEY,
     Parameter_Value VARCHAR(500)
 );
-
-/*
-CREATE OR REPLACE VIEW Media_Files_Extended AS
-SELECT
-    mf.File_ID, mf.File_Name, mf.File_Extension, mf.File_Size_KB, mf.Media_Height, mf.Media_Width,
-    mf.Folder_ID, mfd.Folder_Path,
-    mty.Media_Type_Description
-FROM Media_Files mf
-JOIN Media_Folders mfd ON mf.Folder_ID = mfd.Folder_ID
-JOIN Media_Types mty ON mf.File_Extension = mty.Media_Type_Extension;
-*/
 
 -- Insert default media types 
 INSERT INTO Media_Types (Media_Type_Description, Media_Type_Extension)
@@ -73,35 +62,3 @@ VALUES
     ('gif', '.gif'),     -- Graphics Interchange Format
     ('gif', '.gifv')     -- GIF Video (rare, but sometimes used)
 ON CONFLICT (Media_Type_Description, Media_Type_Extension) DO NOTHING;
-
--- Insert default parameters if needed
-INSERT INTO Parameters (Parameter_Name, Parameter_Value)
-VALUES ('rootfolder', NULL)
-ON CONFLICT (Parameter_Name) DO NOTHING;
-
-CREATE OR REPLACE VIEW folder_hierarchy AS
-WITH RECURSIVE folder_tree AS (
-    -- Base case: root folders (no parent)
-    SELECT
-        folder_id,
-        folder_path,
-        parent_folder_id,
-        0 AS level,
-        ARRAY[folder_path]::TEXT[] AS path_parts
-    FROM media_folders
-    WHERE parent_folder_id IS NULL
-
-    UNION ALL
-
-    -- Recursive case: child folders
-    SELECT
-        f.folder_id,
-        f.folder_path,
-        f.parent_folder_id,
-        ft.level + 1,
-        ft.path_parts || f.folder_path
-    FROM media_folders f
-    JOIN folder_tree ft ON f.parent_folder_id = ft.folder_id
-)
-SELECT * FROM folder_tree
-ORDER BY path_parts;

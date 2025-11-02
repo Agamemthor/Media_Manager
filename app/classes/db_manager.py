@@ -49,7 +49,7 @@ class DBManager:
                 )
                 return cur.fetchall()
         except Exception as e:
-            logger.exception("Failed to get folders from database")
+            logger.exception(f"Failed to get folders from database")
             raise
 
     def get_files_from_db(self) -> List[Tuple]:
@@ -58,9 +58,9 @@ class DBManager:
             with self.get_cursor() as cur:
                 cur.execute(
                     """
-                    SELECT folder_id, file_name, file_extension, file_size_kb, folder_path
+                    SELECT file_id, folder_id, file_name, file_size_kb
                     FROM media_files
-                    ORDER BY folder_path, file_name
+                    ORDER BY folder_id, file_name
                     """
                 )
                 return cur.fetchall()
@@ -127,21 +127,20 @@ class DBManager:
                     execute_values(
                         cur,
                         """
-                        INSERT INTO media_files (folder_id, file_name, file_extension, file_size_kb, folder_path)
+                        INSERT INTO media_files (file_id, folder_id, file_name, file_size_kb)
                         VALUES %s
                         ON CONFLICT (folder_id, file_name) DO UPDATE
-                        SET file_extension = EXCLUDED.file_extension,
-                            file_size_kb = EXCLUDED.file_size_kb;
+                        SET file_size_kb = EXCLUDED.file_size_kb;
                         """,
                         files_data,
-                        template="(%s, %s, %s, %s, %s)",
+                        template="(%s, %s, %s, %s)",
                         page_size=100,
                     )
                 self.conn.commit()
                 self.set_status(f"Saved {len(files_data)} files to database.")
         except Exception as e:
             self.conn.rollback()
-            logger.exception("Failed to save to database")
+            logger.exception(f"Failed to save to database: {e}")
             self.set_status("Error saving to database.")
             raise
 
