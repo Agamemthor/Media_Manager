@@ -5,7 +5,7 @@
     "borderless": false,
     "show_custom_titlebar": false,
     "title": "Media Manager",
-    "show_menubar": true,
+    "show_menubar": false,
     "fullscreen": false,
     "always_on_top": false,
     "exit_on_escape": false,
@@ -128,35 +128,6 @@
             }
           }
         ]
-      },
-      {   
-        "type": "statusbar",
-        "name": "statusbar_1",
-        "row": 2,
-        "column": 0,
-        "rowspan": 1,
-        "columnspan": 2,
-        "linked_content_frame_name": "",
-        "in_panedwindow": false,
-        "bd": 1,
-        "highlightthickness": 0,
-        "bg": "azure3",
-        "sticky": "nsew",
-        "padx": 0,
-        "pady": 0,
-        "grid_propagate": false,
-        "status_text": "Ready",
-        "status_anchor": "w",
-        "status_relief": "sunken",
-        "status_fill": "x",
-        "status_padx": 5,
-        "status_pady": 2,
-        "pack": {
-          "expand": false,
-          "fill": "x",
-          "padx": 0,           
-          "pady": 0
-        }
       }
     ] 
   },

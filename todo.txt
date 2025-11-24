@@ -1,7 +1,24 @@
 Collections:
-- when adding media to a collection, the folder structure is translated into tags
+- when adding media to a collection, a new window appears with all selected folders and files
+- a save button saves the collection data to the db and closes the new window
+- the folder structure is translated into tags
 - initially, all folders in that path will have it's own tags
-- ...
+- the user can manually remove tags somehow. perhaps also in bulk before they are created?
+- are tags saved as json or sth else?
+- the root folder added is mandatory? 
+- do we create tag types? 
+    i.e. a folder containing images is perhaps an event or set. 
+    if the folders are structured by year/month, the '2024', '2025', etc. tags are of type 'year'    
+    this hierarchy  somehow needs to be configurable.. 
+- a new treeview in the main window with collections.
+- modify slideshow to work with tags. slideshow config should contain..
+    a list of all tags corresponding to the files it should show?
+    we'll probably need to start saving slideshow configs to the db. it's already json so should be fine
+    then we need a user interface to modify it. 
+        a slideshow config is parameteritized already. 
+        a simple implementation is to have a basic tkinter text editor
+        if we want to be able to adjust slidshow config on the fly, we can use it to show content and interact with it
+        could we show tags as a draggable object, and drag it from one frame to another? 
 
 refactoring
 - Remove any overly broad exception handling. Add exception handling on areas which are particularly vulnerable. Make all exception handling consistent.
@@ -12,8 +29,8 @@ refactoring
 - remove any tight coupling, and apply dependency injection whenever possible
 - implement python's logging module, and replace any print statements with logging. We keep using the set_status function since handling a statusbar with tkinter has proven tricky.
 
-later?
-- A. Duplicate Frame Creation Logic. Files: grid_manager.py, window_manager.py
+later, might be ai bullshit?
+- ? Duplicate Frame Creation Logic. Files: grid_manager.py, window_manager.py
 - Repeated Status Updates
 - File: treeview_manager.py _add_folder_to_treeview is called recursively, but the logic for adding files and folders is similar. Refactor to reduce duplication.
 - Files: image_manager.py, slideshow_manager.py. Both classes handle image loading and display
@@ -32,4 +49,5 @@ this is my current video_manager.py and associated config, before i let AI decid
 - move further hardcoded configurations, such as the canvas bg, to the config
 - implement a style and use it consistently in the file
 - have that style be configurable like the other video configurations
+- right or left arrow go 5 seconds forward/back
 
