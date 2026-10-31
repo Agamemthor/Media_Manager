@@ -1,4 +1,5 @@
 Collections:
+- users can add media to a collection, media could be a single file or multiple folders and all subfolders.
 - when adding media to a collection, a new window appears with all selected folders and files
 - a save button saves the collection data to the db and closes the new window
 - the folder structure is translated into tags
@@ -6,9 +7,9 @@ Collections:
 - the user can manually remove tags somehow. perhaps also in bulk before they are created?
 - are tags saved as json or sth else?
 - the root folder added is mandatory? 
-- do we create tag types? 
+- do we create tag types? or classifications rather.  
     i.e. a folder containing images is perhaps an event or set. 
-    if the folders are structured by year/month, the '2024', '2025', etc. tags are of type 'year'    
+    if the folders are structured by year/month, the '2024', '2025', etc. classifications are of type 'year'    
     this hierarchy  somehow needs to be configurable.. 
 - a new treeview in the main window with collections.
 - modify slideshow to work with tags. slideshow config should contain..
@@ -50,4 +51,5 @@ this is my current video_manager.py and associated config, before i let AI decid
 - implement a style and use it consistently in the file
 - have that style be configurable like the other video configurations
 - right or left arrow go 5 seconds forward/back
+- stopping the video through the UI clears the current image in the video player. 
 

@@ -3,3 +3,4 @@ app/classes/__pycache__/*
 stop
 all_code.txt
 .ai_prompt
+.env
